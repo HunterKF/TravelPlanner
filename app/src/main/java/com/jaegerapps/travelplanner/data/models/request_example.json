@@ -1,0 +1,9 @@
+{
+  "plan":
+  {
+    "days": 123,
+    "location": "STRING",
+    "interests": "STRING",
+    "requests": "STRING"
+  }
+}

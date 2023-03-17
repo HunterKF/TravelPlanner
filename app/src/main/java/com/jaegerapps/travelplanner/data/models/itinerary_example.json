@@ -1,0 +1,50 @@
+{
+	"itinerary": {
+		"location": "STRING",
+		"length": 123,
+		"interests": "STRING",
+		"day_plan": {
+			"day": 123,
+			"events": 123,
+			"plans": [{
+					"address": "STRING",
+					"name": "STRING",
+					"description": "STRING",
+					"keywords": "STRING",
+					"type": "STRING"
+
+				},
+				{
+					"address": "STRING",
+					"name": "STRING",
+					"description": "STRING",
+					"keywords": "STRING",
+					"type": "STRING"
+				}
+			],
+			"transportation": [{
+					"starting": "STRING",
+					"starting_address": "STRING",
+					"ending": "STRING",
+					"ending_address": "STRING",
+					"type_of_transport": "STRING",
+					"commute_duration": 123,
+					"directions": "STRING"
+				},
+				{
+					"starting": "STRING",
+					"starting_address": "STRING",
+					"ending": "STRING",
+					"ending_address": "STRING",
+					"type_of_transport": "STRING",
+					"commute_duration": 123,
+					"directions": "STRING"
+				}
+			]
+		}
+
+	}
+}
+
+
+
