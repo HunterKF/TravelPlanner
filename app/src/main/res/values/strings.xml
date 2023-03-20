@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">TravelPlanner</string>
+    <string name="request_location_duration">I am traveling to %1$s for %2$s day.</string>
+    <string name="request_interests">I am interested in %1$s.</string>
+    <string name="request_special_requests">I would like %1$s.</string>
+    <string name="request_transportation_true">I want help with transportation. I prefer %1$s.</string>
+    <string name="request_transportation_false">I do not want help with transportation. Do not plan transportation.</string>
+    <string name="request_find_restaurants_true">I want help finding restaurants. Here is a list of things I want: </string>
+    <string name="request_find_restaurants_false">I do not want help finding restaurants.</string>
+    <string name="request_find_meal_type">I want to eat at %1$s time. I would like to eat %2$s.</string>
+    <string name="request_find_meal_type_special_request"> My special requests for this meal is: %1$s.</string>
 </resources>

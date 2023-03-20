@@ -1,6 +1,7 @@
 package com.jaegerapps.travelplanner.di
 
 import com.jaegerapps.travelplanner.data.remote.GptApi
+import com.jaegerapps.travelplanner.presentation.SharedViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,5 +42,11 @@ object AppModule {
             .client(client)
             .build()
             .create()
+    }
+
+    @Provides
+    @Singleton
+    fun provideSharedViewModel(): SharedViewModel {
+        return SharedViewModel()
     }
 }

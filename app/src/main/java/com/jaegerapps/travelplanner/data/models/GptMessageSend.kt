@@ -1,24 +1,13 @@
 package com.jaegerapps.travelplanner.data.models
 
 import com.google.gson.GsonBuilder
+import com.jaegerapps.travelplanner.R
 
 
 data class GptMessageSend(
     val role: String,
     val content: String,
 ) {
-    fun GptMessageToJson(): String? {
-        val gson = GsonBuilder().enableComplexMapKeySerialization().create()
-
-        val complexMap2: LinkedHashMap<GptMessageSend, String> = LinkedHashMap<GptMessageSend, String>()
-        complexMap2[GptMessageSend(role = role, content =content)]
-        val json = gson.toJson(complexMap2)
-        return json
-    }
-
-    fun toArray(): String {
-        return role + content
-    }
 
     companion object {
         val baseSpecList = arrayOf(
@@ -59,10 +48,6 @@ data class GptMessageSend(
                 role = "assistant",
                 content =
                 "{\"itinerary\":{\"location\":\"Danang, Vietnam\",\"length\":1,\"interests\":\"local art and nightlife\",\"day_plan\":{\"day\":1,\"events\":2,\"plans\":[{\"address\":\"22 Bach Dang Street, Hai Chau District, Danang, Vietnam\",\"name\":\"Danang Fine Arts Museum\",\"description\":\"A museum showcasing the art of the region including paintings, sculptures, and antiques.\",\"keywords\":\"local art,museum\",\"type\":\"sightseeing\"},{\"address\":\"88 Bach Dang Street, Hai Chau District, Danang, Vietnam\",\"name\":\"Sky36 Bar\",\"description\":\"A rooftop bar located on the 36th floor of Novotel Danang Premier Han River. It offers stunning views of the city and serves a wide range of drinks.\",\"keywords\":\"nightlife, rooftop bar\",\"type\":\"nightlife\"}],\"transportation\":[]}}}"
-            ),
-            GptMessageSend(
-                role = "user",
-                content = "I have 1 day to travel in Tokyo, Japan. I am interested in local food and shopping. Do not include any transportation instructions."
             ),
         )
     }

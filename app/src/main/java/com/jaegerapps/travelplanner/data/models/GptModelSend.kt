@@ -11,7 +11,3 @@ data class GptModelSend(
     val model: String = "gpt-3.5-turbo",
     val messages: Array<GptMessageSend>
 )
-fun GptModelSend.toJson(): RequestBody {
-    val json = Gson().toJson(this)
-    return json.toString().toRequestBody("application/json".toMediaTypeOrNull())
-}
