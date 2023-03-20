@@ -6,13 +6,17 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jaegerapps.travelplanner.core.ui.LocalSpacing
 import com.jaegerapps.travelplanner.domain.models.SinglePlan
@@ -29,45 +33,69 @@ fun PlanContainer(
     }
     Box(
         modifier = modifier
-            .fillMaxWidth(0.8f)
+            .background(MaterialTheme.colors.surface)
             .clip(RoundedCornerShape(15.dp))
             .clickable {
                 expandedState = !expandedState
             }
     ) {
-        Row(
-            modifier = Modifier.padding(
-                horizontal = spacing.spaceMedium,
-                vertical = spacing.spaceSmall,
-            ),
+        Column(
+            modifier = Modifier
+                .padding(spacing.spaceMedium)
+                .animateContentSize(),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start
         ) {
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(CircleShape)
-                    .background(Color.Red)
-                    .padding(spacing.spaceSmall)
-            )
-            Column(
-                modifier = Modifier.animateContentSize(),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.Start
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
             ) {
-                Text(
-                    text = plan.locationName,
-                    style = MaterialTheme.typography.h1
-                )
-                if (expandedState) {
-                    Text(
-                        text = plan.description,
-                        style = MaterialTheme.typography.body1
-                    )
-                    Text(
-                        text = plan.address,
-                        style = MaterialTheme.typography.subtitle1
+                Box(
+                    modifier = Modifier
+                        .padding(end = spacing.spaceSmall)
+                        .size(40.dp)
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(Color.Red),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.Default.Home,
+                        null,
+                        tint = Color.White
                     )
                 }
+                Text(
+                    text = plan.locationName,
+                    style = MaterialTheme.typography.h5
+                )
+            }
+            if (expandedState) {
+                Text(
+                    text = plan.description,
+                    style = MaterialTheme.typography.body1
+                )
+                Text(
+                    text = plan.address,
+                    style = MaterialTheme.typography.subtitle1
+                )
             }
         }
+    }
+}
+
+@Preview
+@Composable
+fun SinglePlanPreview() {
+    val plan =  SinglePlan(
+        address = "Frankfurt",
+        locationName = "Alex's House",
+        description = "It's a cool place that I have never seen once but will see it by the end of this year.",
+        keywords = "cool, dank, hip",
+        type = "chill, beer, hip"
+    )
+    Row(Modifier.fillMaxWidth()) {
+        PlanContainer(plan = plan)
+
     }
 }

@@ -12,7 +12,8 @@ class SharedViewModel: ViewModel() {
             "",
             8,
             emptyList(),
-            emptyList()
+            emptyList(),
+            listOf(null)
         )
     ))
     var _plannedItinerary = plannedItinerary

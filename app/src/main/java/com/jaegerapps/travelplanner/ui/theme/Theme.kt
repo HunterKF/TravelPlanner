@@ -6,6 +6,7 @@ import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.Color
 import com.jaegerapps.travelplanner.core.ui.Dimensions
 import com.jaegerapps.travelplanner.core.ui.LocalSpacing
 
@@ -18,7 +19,9 @@ private val DarkColorPalette = darkColors(
 private val LightColorPalette = lightColors(
     primary = Purple500,
     primaryVariant = Purple700,
-    secondary = Teal200
+    secondary = Teal200,
+    background = BackgroundColor,
+    surface = Color.White
 
     /* Other default colors to override
     background = Color.White,

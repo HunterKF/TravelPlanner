@@ -5,6 +5,7 @@ import com.jaegerapps.travelplanner.data.models.GptModelSend
 import com.jaegerapps.travelplanner.data.remote.dto.ResponseDto
 import com.jaegerapps.travelplanner.data.models.itineraryDTO.ItineraryWrapperDto
 import com.jaegerapps.travelplanner.data.models.itineraryDTO.ResponseInfoDto
+import com.jaegerapps.travelplanner.domain.mappers.mapPlansAndTransport
 import com.jaegerapps.travelplanner.domain.models.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
@@ -64,7 +65,8 @@ fun ResponseInfoDto.toItinerary(): PlannedItinerary {
         currentDay = dayPlanDto.day,
         numberOfEvents = dayPlanDto.events,
         planList = plans,
-        transportationDetails = transportation
+        transportationDetails = transportation,
+        planAndTransport = mapPlansAndTransport(plans, transportation)
     )
     println(dayPlan)
     return PlannedItinerary(

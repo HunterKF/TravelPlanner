@@ -5,5 +5,18 @@ data class DayPlan(
     val numberOfEvents: Int,
     val planList: List<SinglePlan>,
     val transportationDetails: List<TransportationDetails?>,
+    val planAndTransport: List<Any?>,
 
-    )
+    ) {
+    companion object {
+        fun mapPlansAndTransport(plans: List<SinglePlan>, transport: List<TransportationDetails>): List<Any> {
+            val mappedList = plans.flatMap { singlePlan ->
+                val matchingTransportationDetails = transport.filter { transportationDetail ->
+                    transportationDetail.startingAddress == singlePlan.address
+                }
+                listOf(singlePlan) + matchingTransportationDetails
+            }
+            return mappedList
+        }
+    }
+}
