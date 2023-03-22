@@ -1,6 +1,5 @@
-package com.jaegerapps.travelplanner.presentation.singleTrip
+package com.jaegerapps.travelplanner.presentation.plan_trip
 
-import com.jaegerapps.travelplanner.data.models.itineraryDTO.ResponseInfoDto
 import com.jaegerapps.travelplanner.domain.models.RequestItinerary
 
 data class SingleTripState (

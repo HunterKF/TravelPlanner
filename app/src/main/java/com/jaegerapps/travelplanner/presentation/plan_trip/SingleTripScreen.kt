@@ -1,31 +1,15 @@
 package com.jaegerapps.travelplanner.presentation
 
-import android.widget.Toast
-import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.core.util.UiEvent
-import com.jaegerapps.travelplanner.presentation.models.PlanTripEvent
-import com.jaegerapps.travelplanner.presentation.singleTrip.SingleTripViewModel
+import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
 
 @Composable
 fun SingleTripScreen(
-    viewModel: SingleTripViewModel = hiltViewModel(),
+    viewModel: PlanTripViewModel = hiltViewModel(),
     onRequestComplete: () -> Unit,
     sharedViewModel: SharedViewModel,
-) {
+) {/*
     val context = LocalContext.current
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect { event ->
@@ -204,7 +188,7 @@ fun SingleTripScreen(
                         TextField(
                             value = state.requestItinerary.preferredTransportation,
                             onValueChange = { newValue ->
-                                /*TODO*/
+                                *//*TODO*//*
                             },
                             label = {
                                 Text(
@@ -227,7 +211,7 @@ fun SingleTripScreen(
                         TextField(
                             value = state.requestItinerary.preferredTransportation,
                             onValueChange = { newValue ->
-                                /*TODO*/
+                                *//*TODO*//*
                             },
                             label = {
                                 Text(
@@ -250,7 +234,7 @@ fun SingleTripScreen(
                         TextField(
                             value = state.requestItinerary.preferredTransportation,
                             onValueChange = { newValue ->
-                                /*TODO*/
+                                *//*TODO*//*
                             },
                             label = {
                                 Text(
@@ -281,5 +265,5 @@ fun SingleTripScreen(
                 text = "Send"
             )
         }
-    }
+    }*/
 }

@@ -1,40 +1,43 @@
 package com.jaegerapps.travelplanner.domain.models
 
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
-import com.jaegerapps.travelplanner.domain.models.RequestItinerary.Companion.toStringRequest
-import io.mockk.mockk
-import org.junit.Assert.*
-
 import org.junit.Before
-import org.junit.Test
 import org.junit.runner.manipulation.Ordering.Context
 
 class RequestItineraryTest {
 
     private lateinit var userItineraryRequest: RequestItinerary
-    private lateinit var context: ContextCompat
+    private lateinit var context: Context
 
 
     @Before
     fun setUp() {
-        context = mockk<ContextCompat>(relaxed = true)
+
         userItineraryRequest = RequestItinerary(
             days = "1",
             location = "Paris, France",
             interests = "Interesting neighborhoods, cafes",
-            specialRequests = "I want to have a nice cup of coffee looking at the Eiffel tower.",
+            specialRequests = listOf(
+                SpecialRequest(
+                    id = 1,
+                    day = 1,
+                    request = "I want to have a nice cup of coffee looking at the Eiffel tower."
+                )
+            ),
             transportation = false,
-            preferredTransportation = "",
+            preferredTransportation = PreferredTransport.Walking,
             findRestaurants = true,
-            mealTypes = listOf(
-                MealType(
-                    "lunch",
-                    "local food, local cafe",
-                    "Must have a croissant!"
+            mealRequests = listOf(
+                MealRequest(
+                    day = 1,
+                    meal = MealTime.Dinner,
+                    "cafe",
+                    "Must have a croissant!",
+                    id = 1
                 )
             )
         )
     }
+
+
 
 }

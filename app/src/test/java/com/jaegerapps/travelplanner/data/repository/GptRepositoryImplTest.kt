@@ -7,8 +7,7 @@ import com.jaegerapps.travelplanner.data.GptRepositoryImpl
 import com.jaegerapps.travelplanner.data.remote.GptApi
 import com.jaegerapps.travelplanner.data.remote.invalidResponse
 import com.jaegerapps.travelplanner.data.remote.validResponse
-import com.jaegerapps.travelplanner.domain.models.MealType
-import com.jaegerapps.travelplanner.domain.models.RequestItinerary
+import com.jaegerapps.travelplanner.domain.models.*
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockResponse
@@ -54,15 +53,24 @@ class GptRepositoryImplTest {
             days = "1",
             location = "Paris, France",
             interests = "Interesting neighborhoods, cafes",
-            specialRequests = "I want to have a nice cup of coffee looking at the Eiffel tower.",
+            specialRequests =
+            listOf(
+                SpecialRequest(
+                    id = 1,
+                    day = 1,
+                    request = "I want to have a nice cup of coffee looking at the Eiffel tower."
+                )
+            ),
             transportation = false,
-            preferredTransportation = "",
+            preferredTransportation = PreferredTransport.fromString("walking"),
             findRestaurants = true,
-            mealTypes = listOf(
-                MealType(
-                    "lunch",
+            mealRequests = listOf(
+                MealRequest(
+                    day = 1,
+                    meal = MealTime.fromString("lunch"),
                     "local food, local cafe",
-                    "Must have a croissant!"
+                    "Must have a croissant!",
+                    id = 1
                 )
             )
         )

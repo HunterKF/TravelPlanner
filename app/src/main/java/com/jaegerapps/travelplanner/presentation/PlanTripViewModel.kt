@@ -1,4 +1,4 @@
-package com.jaegerapps.travelplanner.presentation.singleTrip
+package com.jaegerapps.travelplanner.presentation
 
 import android.content.Context
 import android.util.Log
@@ -10,10 +10,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.core.util.UiEvent
 import com.example.core.util.UiText
 import com.jaegerapps.travelplanner.domain.GptRepository
-import com.jaegerapps.travelplanner.domain.models.MealType
+import com.jaegerapps.travelplanner.domain.models.MealTime
+import com.jaegerapps.travelplanner.domain.models.MealRequest
+import com.jaegerapps.travelplanner.domain.models.PreferredTransport
 import com.jaegerapps.travelplanner.domain.models.RequestItinerary.Companion.toStringRequest
-import com.jaegerapps.travelplanner.presentation.SharedViewModel
+import com.jaegerapps.travelplanner.domain.models.SpecialRequest
 import com.jaegerapps.travelplanner.presentation.models.PlanTripEvent
+import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
+import com.jaegerapps.travelplanner.presentation.plan_trip.SingleTripState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -21,7 +25,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SingleTripViewModel @Inject constructor(
+class PlanTripViewModel @Inject constructor(
     private val repository: GptRepository,
 ) : ViewModel() {
 
@@ -32,16 +36,23 @@ class SingleTripViewModel @Inject constructor(
     val uiEvent = _uiEvent.receiveAsFlow()
 
 
-    val value = mutableStateOf("")
 
-    val meal = MealType(
-        meal = "",
-        cuisine = ""
+    val meal = MealRequest(
+        meal = MealTime.Dinner,
+        cuisine = "",
+        id = 1
     )
 
-    fun onValueChange(newValue: String) {
-        value.value = newValue
-    }
+    private val requests = mutableListOf<SpecialRequest>(
+        SpecialRequest(
+            id = 1,
+            day = 1,
+            request = ""
+        )
+    )
+
+
+
 
     fun onEvent(event: PlanTripEvent, context: Context? = null) {
         when (event) {
@@ -49,6 +60,13 @@ class SingleTripViewModel @Inject constructor(
                 state = state.copy(
                     requestItinerary = state.requestItinerary.copy(
                         location = event.query
+                    )
+                )
+            }
+            is PlanTripEvent.OnAboutTripChange -> {
+                state = state.copy(
+                    requestItinerary = state.requestItinerary.copy(
+                        aboutTrip = event.query
                     )
                 )
             }
@@ -68,9 +86,19 @@ class SingleTripViewModel @Inject constructor(
                 )
             }
             is PlanTripEvent.OnRequestsChange -> {
+                requests.add(event.query)
                 state = state.copy(
                     requestItinerary = state.requestItinerary.copy(
-                        specialRequests = event.query
+                        specialRequests = requests
+                    )
+
+                )
+            }
+            is PlanTripEvent.OnRequestDelete -> {
+                requests.minus(event.query)
+                state = state.copy(
+                    requestItinerary = state.requestItinerary.copy(
+                        specialRequests = requests
                     )
 
                 )
@@ -85,7 +113,7 @@ class SingleTripViewModel @Inject constructor(
             is PlanTripEvent.OnPreferredTransportationChange -> {
                 state = state.copy(
                     requestItinerary = state.requestItinerary.copy(
-                        preferredTransportation = event.query
+                        preferredTransportation = PreferredTransport.fromString(event.query)
                     )
                 )
             }
@@ -99,13 +127,13 @@ class SingleTripViewModel @Inject constructor(
             is PlanTripEvent.OnAddMeal -> {
                 state =  state.copy(
                     requestItinerary = state.requestItinerary.copy(
-                        mealTypes = state.requestItinerary.mealTypes.plus(event.query)
+                        mealRequests = state.requestItinerary.mealRequests.plus(event.query)
                     )
                 )
             }
             is PlanTripEvent.OnMealTypeTimeChange -> {
                 meal.copy(
-                    meal = event.query
+                    meal = MealTime.fromString(event.query)
 
                 )
 

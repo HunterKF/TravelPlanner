@@ -1,7 +1,7 @@
 package com.jaegerapps.travelplanner.di
 
 import com.jaegerapps.travelplanner.data.remote.GptApi
-import com.jaegerapps.travelplanner.presentation.SharedViewModel
+import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

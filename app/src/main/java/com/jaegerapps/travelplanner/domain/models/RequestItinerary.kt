@@ -6,15 +6,16 @@ import com.jaegerapps.travelplanner.R
 
 
 data class RequestItinerary(
-
     val days: String = "1",
+    val aboutTrip: String = "",
     val location: String = "",
     val interests: String = "",
-    val specialRequests: String = "",
+    val specialRequests: List<SpecialRequest> = listOf(),
     val transportation: Boolean = false,
-    val preferredTransportation: String = "",
+    val preferredTransportation: PreferredTransport = PreferredTransport.Walking,
     val findRestaurants: Boolean = false,
-    val mealTypes: List<MealType?> = emptyList(),
+    val mealRequests: List<MealRequest?> = emptyList(),
+    val exclusionList: List<String?> = emptyList(),
 ) {
     companion object {
         fun RequestItinerary.toStringRequest(context: Context): String {
@@ -41,32 +42,43 @@ data class RequestItinerary(
                 UiText.StringResource(R.string.request_find_restaurants_true).asString(context)
             else
                 UiText.StringResource(R.string.request_find_restaurants_false).asString(context)
-            val mealTypeList = emptyList<MealType>()
-            if (findRestaurants && mealTypes.isNotEmpty()) {
-                mealTypes.forEach {
+            val mealTypeList = emptyList<MealRequest>()
+            if (findRestaurants && mealRequests.isNotEmpty()) {
+                mealRequests.forEach {
                     if (it != null) {
-                        val emptyList = MealType(
+                        val emptyList = MealRequest(
+                            1,
+                            MealTime.Dinner,
                             "",
-                            ""
+                            id = 1
                         )
+                        val formattedRequest = ""
                         emptyList.copy(
-                            meal = UiText.StringResource(
+                            meal = it.meal,
+                        )
+                        formattedRequest.plus(
+                            UiText.StringResource(
                                 R.string.request_find_meal_type,
-                                it.meal,
+                                it.day.toString(),
+                                it.meal.type,
                                 it.cuisine
                             )
                                 .asString(context)
                         )
 
+
                         if (it.foodRequest?.isNotBlank() == true) {
-                            emptyList.copy(
-                                foodRequest = UiText.StringResource(
+                            formattedRequest.plus(
+                                UiText.StringResource(
                                     R.string.request_find_meal_type_special_request,
-                                    it.foodRequest
+                                    it.foodRequest!!
                                 )
                                     .asString(context)
                             )
                         }
+                        emptyList.copy(
+                            formattedRequest = formattedRequest
+                        )
                         mealTypeList.plus(emptyList)
 
                     }
@@ -76,7 +88,7 @@ data class RequestItinerary(
                 locationDuration + interests + specialRequests + transportation + restaurants
 
             mealTypeList.forEach {
-                returnList.plus(it)
+                returnList.plus(it.formattedRequest)
             }
             return returnList
 

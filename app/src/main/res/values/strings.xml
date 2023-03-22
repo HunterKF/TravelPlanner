@@ -7,6 +7,19 @@
     <string name="request_transportation_false">I do not want help with transportation. Do not plan transportation.</string>
     <string name="request_find_restaurants_true">I want help finding restaurants. Here is a list of things I want: </string>
     <string name="request_find_restaurants_false">I do not want help finding restaurants.</string>
-    <string name="request_find_meal_type">I want to eat at %1$s time. I would like to eat %2$s.</string>
+    <string name="request_find_meal_type">On day %1$s, I want to eat at %1$s time. I would like to eat %2$s.</string>
     <string name="request_find_meal_type_special_request"> My special requests for this meal is: %1$s.</string>
+    <string name="where_are_you_going">Let\'s start your trip! Where are you going to?</string>
+    <string name="next">Next</string>
+    <string name="tell_us_more">Perfect! Let\'s talk about the trip. Can you tell me about what you are excited for in this trip and some more details?</string>
+    <string name="any_special_requests">Your trip is coming along well. Do you have any special requests for the trip?</string>
+    <string name="do_you_need_transport">Great! Let\'s talk about transport. Do you want help getting around?</string>
+    <string name="do_you_want_to_find_restaurants">Last thing before we get your trip going. Do you want help find restaurants?</string>
+    <string name="which_meal">Which meal?</string>
+    <string name="meal_time_breakfast">Breakfast</string>
+    <string name="meal_time_lunch">Lunch</string>
+    <string name="meal_time_dinner">Dinner</string>
+    <string name="what_are_your_interests">Excellent! What are some of your interests?</string>
+    <string name="request_cuisine">What kind of cuisine?</string>
+    <string name="any_other_requests">Any other requests?</string>
 </resources>
