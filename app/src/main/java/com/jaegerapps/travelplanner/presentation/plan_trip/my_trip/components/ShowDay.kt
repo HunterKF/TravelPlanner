@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import com.jaegerapps.travelplanner.core.ui.LocalSpacing
 
 @Composable
@@ -29,10 +30,19 @@ fun ShowDay(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             for (i in 1..days) {
-                Text(
-                    text = "Day $i",
-                    style = MaterialTheme.typography.h6
-                )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.clickable {
+                        currentDay.value = i
+                    }
+                ) {
+                    Text(
+                        text = "Day $i",
+                        style = MaterialTheme.typography.h6,
+                        fontWeight = if (i == currentDay.value) FontWeight.Bold else FontWeight.Normal
+                    )
+                }
+
             }
         }
     } else {
@@ -40,12 +50,17 @@ fun ShowDay(
             horizontalArrangement = Arrangement.spacedBy(spacing.spaceLarge)
         ) {
             items(count = days) {
+                val day = it + 1
                 Box(
-                    modifier = Modifier.clickable { currentDay.value = it }
+                    modifier = Modifier.clickable { currentDay.value = day
+                    println(day)
+                    println(currentDay.value)
+                    }
                 ) {
                     Text(
-                        text = "Day $it",
-                        style = MaterialTheme.typography.h6
+                        text = "Day $day",
+                        style = MaterialTheme.typography.h6,
+                        fontWeight = if (day == currentDay.value) FontWeight.Bold else FontWeight.Normal
                     )
                 }
 

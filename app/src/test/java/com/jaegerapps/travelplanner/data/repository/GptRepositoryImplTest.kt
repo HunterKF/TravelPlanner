@@ -128,4 +128,17 @@ class GptRepositoryImplTest {
 
         assertThat(result.isSuccess).isTrue()
     }
+
+    @Test
+    fun `Send multi-day trip, valid response, returns result`() = runBlocking {
+        mockWebServer.enqueue(
+            MockResponse()
+                .setResponseCode(200)
+                .setBody(validResponse)
+        )
+
+        val result = repository.getResponse(userItineraryRequest.toString())
+
+        assertThat(result.isSuccess).isTrue()
+    }
 }

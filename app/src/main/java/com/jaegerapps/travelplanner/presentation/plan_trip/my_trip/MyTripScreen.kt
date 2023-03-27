@@ -3,7 +3,6 @@ package com.jaegerapps.travelplanner.presentation.plan_trip.my_trip
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -43,19 +42,41 @@ fun MyTripScreen(
                 .fillMaxWidth()
         ) {
 
-            plan.dayPlan.planAndTransport.forEach {item ->
-                when (item) {
-                    is SinglePlan -> {
-                        item {
-                            PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
+            if (plan.multiTrip && plan.multiDayPlan.isNotEmpty()) {
+                val currentPlan =
+                    plan.multiDayPlan.first { it.currentDay.toInt() == viewModel.currentDay.value }
+                currentPlan.planAndTransport.forEach { item ->
+                    when (item) {
+                        is SinglePlan -> {
+                            item {
+                                PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
+                            }
+                        }
+                        is TransportationDetails -> {
+                            item {
+                                TransportContainer(
+                                    transport = item,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
-                    is TransportationDetails -> {
-                        item {
-                            TransportContainer(
-                                transport = item,
-                                modifier = Modifier.fillMaxWidth()
-                            )
+                }
+            } else {
+                plan.dayPlan.planAndTransport.forEach { item ->
+                    when (item) {
+                        is SinglePlan -> {
+                            item {
+                                PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
+                            }
+                        }
+                        is TransportationDetails -> {
+                            item {
+                                TransportContainer(
+                                    transport = item,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
                         }
                     }
                 }
@@ -86,7 +107,7 @@ fun MyTripScreen(
 @Composable
 fun MyTripPreview() {
     val viewModel = SharedViewModel()
-    val plans = listOf(
+    val day1Plan = listOf(
         SinglePlan(
             "1234 Hemmingway",
             "Hunter's House",
@@ -104,6 +125,29 @@ fun MyTripPreview() {
         SinglePlan(
             address = "6785 Haeundae-ro",
             locationName = "Beach Paradise",
+            description = "Beach side",
+            keywords = "beach",
+            type = "beach"
+        )
+    )
+    val day2Plan = listOf(
+        SinglePlan(
+            "12313",
+            "Haeundae",
+            "Good place",
+            "dank",
+            "relaxation"
+        ),
+        SinglePlan(
+            address = "123123123.",
+            locationName = "Seoul",
+            description = "Yummy place",
+            keywords = "spicy",
+            type = "hot sauce"
+        ),
+        SinglePlan(
+            address = "asdasdaso",
+            locationName = "JANGSANG",
             description = "Beach side",
             keywords = "beach",
             type = "beach"
@@ -132,16 +176,54 @@ fun MyTripPreview() {
     )
     viewModel._plannedItinerary.value = PlannedItinerary(
         "Berlin, Germany",
-        "1",
+        "5",
         "pop music and beer gardens",
         dayPlan =
+        DayPlan(
+            currentDay = "1",
+            numberOfEvents = 1,
+            planList = day1Plan,
+            transportationDetails = transport,
+            planAndTransport = mapPlansAndTransport(day1Plan, transport)
+        ),
+        multiTrip = true,
+        multiDayPlan = listOf(
             DayPlan(
                 currentDay = "1",
-                numberOfEvents = 1,
-                planList = plans,
+                numberOfEvents = 3,
+                planList = day1Plan,
                 transportationDetails = transport,
-                planAndTransport = mapPlansAndTransport(plans, transport)
-            )
+                planAndTransport = mapPlansAndTransport(day1Plan, transport)
+            ),
+            DayPlan(
+                currentDay = "2",
+                numberOfEvents = 3,
+                planList = day2Plan,
+                transportationDetails = transport,
+                planAndTransport = mapPlansAndTransport(day2Plan, transport)
+            ),
+            DayPlan(
+                currentDay = "3",
+                numberOfEvents = 3,
+                planList = day1Plan,
+                transportationDetails = transport,
+                planAndTransport = mapPlansAndTransport(day1Plan, transport)
+            ),
+            DayPlan(
+                currentDay = "4",
+                numberOfEvents = 3,
+                planList = day1Plan,
+                transportationDetails = transport,
+                planAndTransport = mapPlansAndTransport(day1Plan, transport)
+            ),
+            DayPlan(
+                currentDay = "5",
+                numberOfEvents = 3,
+                planList = day1Plan,
+                transportationDetails = transport,
+                planAndTransport = mapPlansAndTransport(day1Plan, transport)
+            ),
+        )
 
     )
     MyTripScreen(viewModel = viewModel)

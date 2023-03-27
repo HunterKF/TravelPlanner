@@ -81,8 +81,7 @@ fun SpecialRequestContainer(
                                 expandedState = !expandedState
                             }) {
 
-                            Row(
-                            ) {
+                            Row {
                                 Text(
                                     text = "Day ${request.day}"
                                 )

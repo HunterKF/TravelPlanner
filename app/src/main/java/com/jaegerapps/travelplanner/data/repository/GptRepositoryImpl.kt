@@ -1,6 +1,7 @@
 package com.jaegerapps.travelplanner.data
 
-import com.jaegerapps.travelplanner.data.mappers.toItinerary
+import android.util.Log
+import com.jaegerapps.travelplanner.data.mappers.toPlannedItinerary
 import com.jaegerapps.travelplanner.data.mappers.toJson
 import com.jaegerapps.travelplanner.data.mappers.toResponseInfoDto
 import com.jaegerapps.travelplanner.data.models.GptMessageSend
@@ -16,24 +17,27 @@ class GptRepositoryImpl @Inject constructor(
     private val api: GptApi,
 ) : GptRepository {
     override suspend fun getResponse(prompt: String): Result<PlannedItinerary> {
-
+        Log.d("getResponse", "Get response is starting. ")
         return try {
             Result.success(
                 GptModelSend(
                     messages =
-                        GptMessageSend.baseSpecList.plus(
-                            GptMessageSend(
+                    GptMessageSend.baseSpecList.plus(
+                        GptMessageSend(
                             role = "user",
                             content = prompt
                         ),
                     )
                 ).toJson()
                     .let {
+                        Log.d("getResponse", "Get response is now in let. ")
                         api.getResponse(it)
                             .toResponseInfoDto()
-                            .toItinerary()
+                            .toPlannedItinerary()
+
                     }
             )
+
         } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)

@@ -114,7 +114,7 @@ data class RequestItinerary(
             var specialRequestsList = listOf<String>()
             currentDayTripDetails.specialRequest.forEach {
                 Log.d("RequestItinerary", "Current special request value: $it")
-                if (it.request != "") {
+                if (it.request == "" && it.day == currentDay) {
                     specialRequestsList = specialRequestsList.plus(
                         UiText.StringResource(
                             R.string.request_special_requests,
@@ -173,7 +173,7 @@ data class RequestItinerary(
                 }
             }
             var exclusionListFormat = listOf<String>()
-            if (exclusionList.isNotEmpty()) {
+            if (currentDay != 1) {
                 exclusionListFormat = exclusionListFormat.plus(
                     UiText.StringResource(R.string.exclude_these_places).asString(context)
                 )

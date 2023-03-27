@@ -235,7 +235,7 @@ class PlanTripViewModel @Inject constructor(
                         _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
                     }
 
-            }
+            }.isCompleted
         }
     }
 }

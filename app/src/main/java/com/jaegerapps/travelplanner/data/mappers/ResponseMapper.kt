@@ -24,7 +24,7 @@ fun ResponseDto.toResponseInfoDto(): ResponseInfoDto {
     )
 }
 
-fun ResponseInfoDto.toItinerary(): PlannedItinerary {
+fun ResponseInfoDto.toPlannedItinerary(): PlannedItinerary {
     val dtoInfo = this.itinerary.itinerary
     val dayPlanDto = this.itinerary.itinerary.day_plan
     val plansDto = this.itinerary.itinerary.day_plan.plans
@@ -71,7 +71,6 @@ fun ResponseInfoDto.toItinerary(): PlannedItinerary {
     println(dayPlan)
     return PlannedItinerary(
         location = dtoInfo.location,
-        durationOfStay = dtoInfo.length.toString(),
         interests = dtoInfo.interests,
         dayPlan = dayPlan
     )

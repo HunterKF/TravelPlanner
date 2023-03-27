@@ -76,90 +76,67 @@ fun TransportScreen(
             }
         }
         false -> {
-            TransportContent(
-                spacing,
-                requestTransportState,
-                requestTransportType,
-                transportViewModel,
-                state,
-                sharedViewModel,
-                planTripViewModel,
-                context
-            )
-        }
-    }
-
-}
-
-@Composable
-private fun TransportContent(
-    spacing: Dimensions,
-    requestTransportState: Boolean,
-    requestTransportType: PreferredTransport,
-    transportViewModel: TransportViewModel,
-    state: DayTripState,
-    sharedViewModel: SharedViewModel,
-    planTripViewModel: PlanTripViewModel,
-    context: Context,
-) {
-    var requestTransportState1 = requestTransportState
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(spacing.spaceLarge)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .animateContentSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(id = R.string.do_you_need_transport),
-                style = MaterialTheme.typography.h3
-            )
-            Spacer(modifier = Modifier.height(spacing.spaceMedium))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(spacing.spaceLarge)
             ) {
-                SelectableButton(
-                    text = "Yes",
-                    onClick = { requestTransportState1 = true },
-                    color = if (requestTransportState1) MaterialTheme.colors.primary else Color.LightGray,
-                    isSelected = requestTransportState1,
-                    selectedTextColor = if (requestTransportState1) Color.White else MaterialTheme.colors.primary
-                )
-                SelectableButton(
-                    text = "No",
-                    onClick = { requestTransportState1 = false },
-                    color = if (!requestTransportState1) MaterialTheme.colors.primary else Color.LightGray,
-                    isSelected = !requestTransportState1,
-                    selectedTextColor = if (!requestTransportState1) Color.White else MaterialTheme.colors.primary
-                )
-            }
-            if (requestTransportState1) {
-                Spacer(modifier = Modifier.height(spacing.spaceMedium))
-                TransportationSelector(requestTransportType, transportViewModel, spacing)
-            }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .animateContentSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.do_you_need_transport),
+                        style = MaterialTheme.typography.h3
+                    )
+                    Spacer(modifier = Modifier.height(spacing.spaceMedium))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        SelectableButton(
+                            text = "Yes",
+                            onClick = { requestTransportState = true },
+                            color = if (requestTransportState) MaterialTheme.colors.primary else Color.LightGray,
+                            isSelected = requestTransportState,
+                            selectedTextColor = if (requestTransportState) Color.White else MaterialTheme.colors.primary
+                        )
+                        SelectableButton(
+                            text = "No",
+                            onClick = { requestTransportState = false },
+                            color = if (!requestTransportState) MaterialTheme.colors.primary else Color.LightGray,
+                            isSelected = !requestTransportState,
+                            selectedTextColor = if (!requestTransportState) Color.White else MaterialTheme.colors.primary
+                        )
+                    }
+                    if (requestTransportState) {
+                        Spacer(modifier = Modifier.height(spacing.spaceMedium))
+                        TransportationSelector(requestTransportType, transportViewModel, spacing)
+                    }
 
-        }
-        ActionButton(
-            text = stringResource(id = R.string.next),
-            isEnabled = state.requestItinerary.location.isNotBlank(),
-            onClick = {
-                sharedViewModel.updateStateTransport(requestTransportType)
-                if (state.requestItinerary.multiDay) {
-                    planTripViewModel.onMultiDaySendQuery(context = context, sharedViewModel = sharedViewModel)
-                } else {
-                    planTripViewModel.onSendQuery(context = context, sharedViewModel = sharedViewModel)
                 }
-            },
-            modifier = Modifier.align(Alignment.BottomEnd)
-        )
+                ActionButton(
+                    text = stringResource(id = R.string.next),
+                    isEnabled = state.requestItinerary.location.isNotBlank(),
+                    onClick = {
+                        sharedViewModel.updateStateTransport(requestTransportType)
+                        if (state.requestItinerary.multiDay) {
+                            planTripViewModel.onMultiDaySendQuery(context = context, sharedViewModel = sharedViewModel)
+                        } else {
+                            planTripViewModel.onSendQuery(context = context, sharedViewModel = sharedViewModel)
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                )
+            }
+        }
     }
+
 }
+
 
 @Composable
 private fun TransportationSelector(
