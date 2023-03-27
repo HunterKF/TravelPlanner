@@ -4,10 +4,10 @@ import android.util.Log
 import com.jaegerapps.travelplanner.data.mappers.toPlannedItinerary
 import com.jaegerapps.travelplanner.data.mappers.toJson
 import com.jaegerapps.travelplanner.data.mappers.toResponseInfoDto
-import com.jaegerapps.travelplanner.data.models.GptMessageSend
-import com.jaegerapps.travelplanner.data.models.GptModelSend
+import com.jaegerapps.travelplanner.data.models.gpt.GptMessageSend
+import com.jaegerapps.travelplanner.data.models.gpt.GptModelSend
 import com.jaegerapps.travelplanner.data.remote.GptApi
-import com.jaegerapps.travelplanner.domain.GptRepository
+import com.jaegerapps.travelplanner.domain.repositories.GptRepository
 import com.jaegerapps.travelplanner.data.models.itineraryDTO.ResponseInfoDto
 import com.jaegerapps.travelplanner.domain.models.PlannedItinerary
 import javax.inject.Inject

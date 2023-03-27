@@ -124,9 +124,15 @@ fun TransportScreen(
                     onClick = {
                         sharedViewModel.updateStateTransport(requestTransportType)
                         if (state.requestItinerary.multiDay) {
-                            planTripViewModel.onMultiDaySendQuery(context = context, sharedViewModel = sharedViewModel)
+                            planTripViewModel.onMultiDaySendQuery(
+                                context = context,
+                                sharedViewModel = sharedViewModel
+                            )
                         } else {
-                            planTripViewModel.onSendQuery(context = context, sharedViewModel = sharedViewModel)
+                            planTripViewModel.onSendQuery(
+                                context = context,
+                                sharedViewModel = sharedViewModel
+                            )
                         }
                     },
                     modifier = Modifier.align(Alignment.BottomEnd)
@@ -144,13 +150,11 @@ private fun TransportationSelector(
     transportViewModel: TransportViewModel,
     spacing: Dimensions,
 ) {
-
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 100.dp),
         verticalArrangement = Arrangement.spacedBy(spacing.spaceSmall),
         horizontalArrangement = Arrangement.spacedBy(spacing.spaceSmall),
-
-        ) {
+    ) {
         item() {
             SelectableButton(
                 text = "walking",

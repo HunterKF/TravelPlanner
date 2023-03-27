@@ -10,7 +10,7 @@ import retrofit2.http.POST
 interface GptApi {
     @Headers(
         "Content-Type: application/json",
-        "Authorization: Bearer ${BuildConfig.API_KEY}"
+        "Authorization: Bearer ${BuildConfig.GPT_API_KEY}"
     )
     @POST("chat/completions")
     suspend fun sendSystemSpec(
@@ -19,7 +19,7 @@ interface GptApi {
 
     @Headers(
         "Content-Type: application/json",
-        "Authorization: Bearer ${BuildConfig.API_KEY}"
+        "Authorization: Bearer ${BuildConfig.GPT_API_KEY}"
     )
     @POST("chat/completions")
     suspend fun getResponse(

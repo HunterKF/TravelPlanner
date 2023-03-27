@@ -1,5 +1,6 @@
 package com.jaegerapps.travelplanner.di
 
+import com.jaegerapps.travelplanner.data.remote.GooglePlaceApi
 import com.jaegerapps.travelplanner.data.remote.GptApi
 import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
 import dagger.Module
@@ -38,6 +39,17 @@ object AppModule {
     fun providesGptApi(client: OkHttpClient): GptApi {
         return Retrofit.Builder()
             .baseUrl(GptApi.BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create())
+            .client(client)
+            .build()
+            .create()
+    }
+
+    @Provides
+    @Singleton
+    fun providesGooglePlacesApi(client: OkHttpClient): GooglePlaceApi {
+        return Retrofit.Builder()
+            .baseUrl(GooglePlaceApi.BASE_URL)
             .addConverterFactory(MoshiConverterFactory.create())
             .client(client)
             .build()

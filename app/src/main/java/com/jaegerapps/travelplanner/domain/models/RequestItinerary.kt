@@ -9,6 +9,7 @@ import com.jaegerapps.travelplanner.R
 data class RequestItinerary(
     val days: String = "1",
     val aboutTrip: String = "",
+    var places: List<String> = listOf<String>(),
     val location: String = "",
     val interests: String = "",
     val multiDay: Boolean = false,
@@ -21,12 +22,16 @@ data class RequestItinerary(
 ) {
     companion object {
         fun RequestItinerary.toStringRequest(context: Context): String {
-            val locationDuration =
+            val locationQuery =
                 UiText.StringResource(R.string.request_location_duration, location, days)
                     .asString(context)
             val interests =
                 UiText.StringResource(R.string.request_interests, interests).asString(context)
             val aboutTrip = UiText.StringResource(R.string.about_trip, aboutTrip).asString(context)
+            var validLocations = listOf<String>(
+                UiText.StringResource(R.string.list_of_valid_locations).asString(context),
+                places.toString()
+            )
 
             var specialRequestsList = listOf<String>()
             specialRequests.forEach {
@@ -91,7 +96,7 @@ data class RequestItinerary(
                 }
             }
             val returnList =
-                locationDuration + aboutTrip + interests + specialRequestsList + restaurants + transportation
+                locationQuery + aboutTrip + interests + validLocations + specialRequestsList + restaurants + transportation
 
 
             return returnList

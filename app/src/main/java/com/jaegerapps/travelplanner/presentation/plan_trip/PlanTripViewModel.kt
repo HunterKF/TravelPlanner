@@ -9,14 +9,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.util.UiEvent
 import com.example.core.util.UiText
-import com.jaegerapps.travelplanner.domain.GptRepository
+import com.jaegerapps.travelplanner.domain.mappers.stringToPlaceQuery
+import com.jaegerapps.travelplanner.domain.repositories.GptRepository
 import com.jaegerapps.travelplanner.domain.models.MealTime
 import com.jaegerapps.travelplanner.domain.models.MealRequest
 import com.jaegerapps.travelplanner.domain.models.RequestItinerary.Companion.toMultiDayStringRequest
 import com.jaegerapps.travelplanner.domain.models.RequestItinerary.Companion.toStringRequest
 import com.jaegerapps.travelplanner.domain.models.SinglePlan
 import com.jaegerapps.travelplanner.domain.models.SpecialRequest
+import com.jaegerapps.travelplanner.domain.repositories.GooglePlaceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -24,7 +28,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class PlanTripViewModel @Inject constructor(
-    private val repository: GptRepository,
+    private val gptRepository: GptRepository,
+    private val placeRepository: GooglePlaceRepository,
 ) : ViewModel() {
 
     var state by mutableStateOf(DayTripState())
@@ -158,30 +163,52 @@ class PlanTripViewModel @Inject constructor(
         state = state.copy(
             requestItinerary = sharedViewModel.requestState.requestItinerary
         )
-        val prompt = state.requestItinerary.toStringRequest(context = context)
         viewModelScope.launch {
             state = state.copy(
                 isLoading = true
             )
-            repository.getResponse(prompt)
-                .onSuccess {
-                    Log.d("onSendQuery", "on send is starting:$it")
-                    state = state.copy(
-                        isLoading = false,
-                    )
-                    sharedViewModel.onCompletion(it)
-                    Log.d("onSendQuery", "onSend has now completed ")
+            val query =
+                stringToPlaceQuery(location = state.requestItinerary.location, context = context)
 
-                    _uiEvent.send(UiEvent.Success)
-                }
-                .onFailure {
-                    state = state.copy(
-                        isLoading = false,
-                        error = it.message
-                    )
-                    _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
-                }
+            val resultPlaces = async {
+                placeRepository.getPlaces(query)
+                    .onSuccess {
+                        state = state.copy(
+                            requestItinerary = state.requestItinerary.copy(
+                                places = it.places
+                            )
+                        )
+                    }
+                    .onFailure {
+                        state = state.copy(
+                            isLoading = false,
+                            error = it.message
+                        )
+                        _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+                    }
+            }.await()
+            val resultGpt = async {
+                val prompt = state.requestItinerary.toStringRequest(context = context)
 
+                gptRepository.getResponse(prompt)
+                    .onSuccess {
+                        Log.d("onSendQuery", "on send is starting:$it")
+                        state = state.copy(
+                            isLoading = false,
+                        )
+                        sharedViewModel.onCompletion(it)
+                        Log.d("onSendQuery", "onSend has now completed ")
+
+                        _uiEvent.send(UiEvent.Success)
+                    }
+                    .onFailure {
+                        state = state.copy(
+                            isLoading = false,
+                            error = it.message
+                        )
+                        _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+                    }
+            }.await()
         }
     }
 
@@ -189,19 +216,18 @@ class PlanTripViewModel @Inject constructor(
         state = state.copy(
             requestItinerary = sharedViewModel.requestState.requestItinerary
         )
-        sharedViewModel.plannedState.durationOfStay = sharedViewModel.requestState.requestItinerary.days
+        sharedViewModel.plannedState.durationOfStay =
+            sharedViewModel.requestState.requestItinerary.days
         val days = sharedViewModel.requestState.requestItinerary.days.toInt()
         for (i in 1..days) {
             val prompt =
                 state.requestItinerary.toMultiDayStringRequest(context = context, currentDay = i)
-
             viewModelScope.launch {
                 state = state.copy(
                     isLoading = true
                 )
-                repository.getResponse(prompt)
+                gptRepository.getResponse(prompt)
                     .onSuccess {
-                        Log.d("onSendQuery", it.toString())
                         it.dayPlan.planAndTransport.forEach { item ->
                             when (item) {
                                 is SinglePlan -> {
@@ -234,8 +260,7 @@ class PlanTripViewModel @Inject constructor(
                         )
                         _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
                     }
-
-            }.isCompleted
+            }
         }
     }
 }

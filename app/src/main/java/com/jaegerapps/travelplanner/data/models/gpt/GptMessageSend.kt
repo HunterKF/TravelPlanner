@@ -1,7 +1,4 @@
-package com.jaegerapps.travelplanner.data.models
-
-import com.google.gson.GsonBuilder
-import com.jaegerapps.travelplanner.R
+package com.jaegerapps.travelplanner.data.models.gpt
 
 
 data class GptMessageSend(

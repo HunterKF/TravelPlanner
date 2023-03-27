@@ -1,4 +1,4 @@
-package com.jaegerapps.travelplanner.domain
+package com.jaegerapps.travelplanner.domain.repositories
 
 import com.jaegerapps.travelplanner.data.models.itineraryDTO.ResponseInfoDto
 import com.jaegerapps.travelplanner.domain.models.PlannedItinerary

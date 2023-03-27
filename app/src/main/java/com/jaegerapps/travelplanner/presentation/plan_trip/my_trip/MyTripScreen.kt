@@ -81,24 +81,6 @@ fun MyTripScreen(
                     }
                 }
             }
-            /*item(plan.dayPlan) {
-                if (plan.dayPlan.currentDay.toInt() == viewModel.currentDay.value) {
-                    plan.dayPlan.planAndTransport.forEach { item ->
-                        when (item) {
-                            is SinglePlan -> {
-                                PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
-                            }
-                            is TransportationDetails -> {
-                                TransportContainer(
-                                    transport = item,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                    }
-                }
-            }*/
-
         }
     }
 }

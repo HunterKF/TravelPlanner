@@ -24,7 +24,8 @@ android {
         Properties properties = new Properties()
         properties.load(project.rootProject.file("local.properties").newDataInputStream())
 
-        buildConfigField "String", "API_KEY", "\"${properties.getProperty("API_KEY")}\""
+        buildConfigField "String", "GPT_API_KEY", "\"${properties.getProperty("GPT_API_KEY")}\""
+        buildConfigField "String", "PLACES_API_KEY", "\"${properties.getProperty("PLACES_API_KEY")}\""
     }
 
     buildTypes {

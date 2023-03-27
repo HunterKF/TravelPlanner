@@ -1,7 +1,7 @@
 package com.jaegerapps.travelplanner.data.mappers
 
 import com.google.gson.Gson
-import com.jaegerapps.travelplanner.data.models.GptModelSend
+import com.jaegerapps.travelplanner.data.models.gpt.GptModelSend
 import com.jaegerapps.travelplanner.data.remote.dto.ResponseDto
 import com.jaegerapps.travelplanner.data.models.itineraryDTO.ItineraryWrapperDto
 import com.jaegerapps.travelplanner.data.models.itineraryDTO.ResponseInfoDto
