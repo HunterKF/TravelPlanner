@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun HomeScreen(onSingleTripNavigate: () -> Unit) {
+fun HomeScreen(onSingleTripNavigate: () -> Unit, onMultiTripNavigate: () -> Unit) {
     Surface {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -23,7 +23,7 @@ fun HomeScreen(onSingleTripNavigate: () -> Unit) {
                     text = "Plan single trip"
                 )
             }
-            Button(onClick = { /*TODO*/ }) {
+            Button(onClick = { onMultiTripNavigate() }) {
                 Text(
                     text = "Plan single trip"
                 )

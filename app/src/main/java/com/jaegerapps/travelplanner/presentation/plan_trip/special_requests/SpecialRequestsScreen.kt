@@ -38,7 +38,7 @@ fun SpecialRequestsScreen(
             }
         }
     }
-    val state = sharedViewModel.state
+    val state = sharedViewModel.requestState
     var requestState = specialRequestsViewModel.toggleRequest
     Box(
         modifier = Modifier
@@ -86,7 +86,7 @@ fun SpecialRequestsScreen(
                 SpecialRequestContainer(
                     modifier = Modifier.offset(y = offsetAnimation),
                     specialRequestsViewModel = specialRequestsViewModel,
-                    totalDays = sharedViewModel.state.requestItinerary.days.toInt()
+                    totalDays = sharedViewModel.requestState.requestItinerary.days.toInt()
                 )
             }
 
@@ -94,7 +94,7 @@ fun SpecialRequestsScreen(
         ActionButton(
             text = stringResource(id = R.string.next),
             onClick = {
-                sharedViewModel.onStateRequestUpdate(state.requestItinerary.specialRequests)
+                sharedViewModel.onStateRequestUpdate(specialRequestsViewModel.state.value)
                 specialRequestsViewModel.onNextClick()
             },
             modifier = Modifier.align(Alignment.BottomEnd)

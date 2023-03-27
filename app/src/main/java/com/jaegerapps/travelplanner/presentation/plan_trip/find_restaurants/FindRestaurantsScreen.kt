@@ -46,8 +46,8 @@ fun FindRestaurantsScreen(
             }
         }
     }
-    val state = sharedViewModel.state
-    val totalDays = sharedViewModel.state.requestItinerary.days.toInt()
+    val state = sharedViewModel.requestState
+    val totalDays = sharedViewModel.requestState.requestItinerary.days.toInt()
     var requestState = findRestaurantsViewModel.toggleRequest
     var mealListState = findRestaurantsViewModel.state
     Box(
@@ -91,7 +91,8 @@ fun FindRestaurantsScreen(
                 LazyColumn() {
 
                     items(mealListState.value) { meal ->
-                        var string by remember { mutableStateOf("") }
+                        var cuisineString by remember { mutableStateOf("") }
+                        var requestString by remember { mutableStateOf("") }
                         var expandedState by remember { mutableStateOf(false) }
                         Box(
                             modifier = Modifier
@@ -169,10 +170,10 @@ fun FindRestaurantsScreen(
                                 MealTimeSelector(meal, findRestaurantsViewModel)
                                 TextField(
                                     modifier = Modifier.fillMaxWidth(),
-                                    value = string,
+                                    value = cuisineString,
                                     onValueChange = { newValue ->
-                                        string = newValue
-                                        findRestaurantsViewModel.onCuisineChange(meal.id, string)
+                                        cuisineString = newValue
+                                        findRestaurantsViewModel.onCuisineChange(meal.id, cuisineString)
                                     },
                                     placeholder = {
                                         Text(
@@ -190,10 +191,10 @@ fun FindRestaurantsScreen(
                                     )
                                 TextField(
                                     modifier = Modifier.fillMaxWidth(),
-                                    value = string,
+                                    value = requestString,
                                     onValueChange = { newValue ->
-                                        string = newValue
-                                        findRestaurantsViewModel.onCuisineChange(meal.id, string)
+                                        requestString = newValue
+                                        findRestaurantsViewModel.onCuisineChange(meal.id, requestString)
                                     },
                                     placeholder = {
                                         Text(
@@ -236,7 +237,7 @@ fun FindRestaurantsScreen(
         ActionButton(
             text = stringResource(id = R.string.next),
             onClick = {
-                sharedViewModel.updateStateMealList(mealListState.value)
+                sharedViewModel.updateStateMealList(mealListState.value, requestState.value)
                 findRestaurantsViewModel.onNextClick()
             },
             modifier = Modifier.align(Alignment.BottomEnd)

@@ -7,26 +7,54 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.core.util.UiEvent
 import com.jaegerapps.travelplanner.domain.models.*
-import com.jaegerapps.travelplanner.presentation.plan_trip.SingleTripState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 
 class SharedViewModel : ViewModel() {
+
+
+    //This state is used to display the MyTrip screen
     private var plannedItinerary = mutableStateOf(
         PlannedItinerary(
-            "", "", "", dayPlan = DayPlan(
-                "",
-                8,
-                emptyList(),
-                emptyList(),
-                listOf(null)
+            location = "",
+            durationOfStay = "",
+            interests = "",
+            dayPlan =
+            DayPlan(
+                currentDay = "",
+                numberOfEvents = 1,
+                planList = listOf(),
+                transportationDetails = listOf(),
+                planAndTransport = listOf()
             )
+
         )
     )
+    var _plannedItinerary = plannedItinerary
 
-    var state by mutableStateOf(SingleTripState())
+    //this is what we change to make the request
+    var requestState by mutableStateOf(DayTripState())
         private set
 
+    var plannedState by mutableStateOf(
+        PlannedItinerary(
+            location = "",
+            durationOfStay = "",
+            interests = "",
+            dayPlan =
+            DayPlan(
+                currentDay = "",
+                numberOfEvents = 1,
+                planList = listOf(),
+                transportationDetails = listOf(),
+                planAndTransport = listOf()
+            )
+
+        )
+    )
+        private set
+
+    val currentDay = mutableStateOf(1)
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
@@ -37,64 +65,77 @@ class SharedViewModel : ViewModel() {
         id = 1
     )
 
-    private val requests = mutableListOf<SpecialRequest>(
-        SpecialRequest(
-            id = 1,
-            day = 1,
-            request = ""
+    fun onMultiDayClick() {
+        requestState = requestState.copy(
+            requestItinerary = requestState.requestItinerary.copy(
+                multiDay = true
+            )
         )
-    )
+    }
 
     fun onLocationChange(value: String) {
-        state = state.copy(
-            requestItinerary = state.requestItinerary.copy(
+        requestState = requestState.copy(
+            requestItinerary = requestState.requestItinerary.copy(
                 location = value
             )
         )
-
     }
 
-    var _plannedItinerary = plannedItinerary
+    fun onDurationChange(value: String) {
+        requestState = requestState.copy(
+            requestItinerary = requestState.requestItinerary.copy(
+                days = value
+            )
+        )
+    }
+
 
     fun onCompletion(incomingItinerary: PlannedItinerary) {
         _plannedItinerary.value = incomingItinerary
+
+    }
+
+    fun onAdd(incomingItinerary: PlannedItinerary) {
+        _plannedItinerary.value.multiDayPlan =
+            _plannedItinerary.value.multiDayPlan.plus(incomingItinerary.dayPlan)
     }
 
     fun onAboutTripChange(value: String) {
-        state = state.copy(
-            requestItinerary = state.requestItinerary.copy(
+        requestState = requestState.copy(
+            requestItinerary = requestState.requestItinerary.copy(
                 aboutTrip = value
             )
         )
     }
 
     fun onInterestsChange(value: String) {
-        state = state.copy(
-            requestItinerary = state.requestItinerary.copy(
+        requestState = requestState.copy(
+            requestItinerary = requestState.requestItinerary.copy(
                 interests = value
             )
         )
     }
 
     fun onStateRequestUpdate(specialRequests: List<SpecialRequest>) {
-        state = state.copy(
-            requestItinerary = state.requestItinerary.copy(
+        requestState = requestState.copy(
+            requestItinerary = requestState.requestItinerary.copy(
                 specialRequests = specialRequests
             )
         )
     }
 
-    fun updateStateMealList(value: List<MealRequest>) {
-        state = state.copy(
-            requestItinerary = state.requestItinerary.copy(
+    fun updateStateMealList(value: List<MealRequest>, newValue: Boolean) {
+        requestState = requestState.copy(
+            requestItinerary = requestState.requestItinerary.copy(
+                findRestaurants = newValue,
                 mealRequests = value
             )
         )
     }
 
     fun updateStateTransport(requestTransportType: PreferredTransport) {
-        state = state.copy(
-            requestItinerary = state.requestItinerary.copy(
+        requestState = requestState.copy(
+            requestItinerary = requestState.requestItinerary.copy(
                 transportation = true,
                 preferredTransportation = requestTransportType
             )

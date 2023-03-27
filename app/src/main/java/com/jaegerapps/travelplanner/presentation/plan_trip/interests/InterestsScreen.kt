@@ -32,7 +32,7 @@ fun InterestsScreen(
             }
         }
     }
-    val state = sharedViewModel.state
+    val state = sharedViewModel.requestState
     Box(
         modifier = Modifier
             .fillMaxSize()

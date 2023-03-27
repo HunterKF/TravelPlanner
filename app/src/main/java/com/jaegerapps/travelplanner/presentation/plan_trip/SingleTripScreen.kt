@@ -2,6 +2,7 @@ package com.jaegerapps.travelplanner.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.jaegerapps.travelplanner.presentation.plan_trip.PlanTripViewModel
 import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
 
 @Composable

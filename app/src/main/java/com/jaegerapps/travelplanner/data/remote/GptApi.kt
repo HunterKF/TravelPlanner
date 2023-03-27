@@ -1,6 +1,6 @@
 package com.jaegerapps.travelplanner.data.remote
 
-import com.jaegerapps.travelplanner.data.consts.API_KEY
+import com.jaegerapps.travelplanner.BuildConfig
 import com.jaegerapps.travelplanner.data.remote.dto.ResponseDto
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -10,7 +10,7 @@ import retrofit2.http.POST
 interface GptApi {
     @Headers(
         "Content-Type: application/json",
-        "Authorization: Bearer $API_KEY"
+        "Authorization: Bearer ${BuildConfig.API_KEY}"
     )
     @POST("chat/completions")
     suspend fun sendSystemSpec(
@@ -19,7 +19,7 @@ interface GptApi {
 
     @Headers(
         "Content-Type: application/json",
-        "Authorization: Bearer $API_KEY"
+        "Authorization: Bearer ${BuildConfig.API_KEY}"
     )
     @POST("chat/completions")
     suspend fun getResponse(

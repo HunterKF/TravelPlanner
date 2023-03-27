@@ -11,6 +11,7 @@ sealed class Route(val route: String, val label: String, val vector: ImageVector
     object SingleTrip : Route(route = "single_trip", "Planner", Icons.Default.AccountBox)
     object ViewTrip : Route (route = "view_trip", "My Trip", Icons.Default.AccountCircle)
     object Location : Route (route = "location", "Location", Icons.Default.AccountCircle)
+    object Duration : Route (route = "duration", "Duration", Icons.Default.AccountCircle)
     object AboutTrip : Route (route = "about_trip", "About Trip", Icons.Default.AccountCircle)
     object Interests : Route (route = "interests", "Interest", Icons.Default.AccountCircle)
     object SpecialRequests : Route (route = "special_requests", "Special Requests", Icons.Default.AccountCircle)

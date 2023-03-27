@@ -1,4 +1,4 @@
-package com.jaegerapps.travelplanner.presentation.my_trip
+package com.jaegerapps.travelplanner.presentation.plan_trip.my_trip
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -15,10 +15,10 @@ import com.jaegerapps.travelplanner.domain.models.PlannedItinerary
 import com.jaegerapps.travelplanner.domain.models.SinglePlan
 import com.jaegerapps.travelplanner.domain.models.TransportationDetails
 import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
-import com.jaegerapps.travelplanner.presentation.my_trip.components.PlanContainer
-import com.jaegerapps.travelplanner.presentation.my_trip.components.ShowDay
-import com.jaegerapps.travelplanner.presentation.my_trip.components.TransportContainer
-import com.jaegerapps.travelplanner.presentation.my_trip.components.TripTopBar
+import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components.PlanContainer
+import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components.ShowDay
+import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components.TransportContainer
+import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components.TripTopBar
 
 @Composable
 fun MyTripScreen(
@@ -35,23 +35,48 @@ fun MyTripScreen(
     ) {
         TripTopBar(title = plan.location)
         Spacer(modifier = Modifier.size(spacing.spaceMedium))
-        ShowDay(duration = plan.durationOfStay)
+        ShowDay(duration = plan.durationOfStay, currentDay = viewModel.currentDay)
         Spacer(modifier = Modifier.size(spacing.spaceMedium))
 
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            items(plan.dayPlan.planAndTransport) { item ->
-                when(item) {
+
+            plan.dayPlan.planAndTransport.forEach {item ->
+                when (item) {
                     is SinglePlan -> {
-                        PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
+                        item {
+                            PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
+                        }
                     }
                     is TransportationDetails -> {
-                        TransportContainer(transport = item, modifier = Modifier.fillMaxWidth())
+                        item {
+                            TransportContainer(
+                                transport = item,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }
+            /*item(plan.dayPlan) {
+                if (plan.dayPlan.currentDay.toInt() == viewModel.currentDay.value) {
+                    plan.dayPlan.planAndTransport.forEach { item ->
+                        when (item) {
+                            is SinglePlan -> {
+                                PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
+                            }
+                            is TransportationDetails -> {
+                                TransportContainer(
+                                    transport = item,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+                        }
+                    }
+                }
+            }*/
 
         }
     }
@@ -109,13 +134,15 @@ fun MyTripPreview() {
         "Berlin, Germany",
         "1",
         "pop music and beer gardens",
-        dayPlan = DayPlan(
-            currentDay = "1",
-            numberOfEvents = 1,
-            planList = plans,
-            transportationDetails = transport,
-            planAndTransport = mapPlansAndTransport(plans, transport)
-        )
+        dayPlan =
+            DayPlan(
+                currentDay = "1",
+                numberOfEvents = 1,
+                planList = plans,
+                transportationDetails = transport,
+                planAndTransport = mapPlansAndTransport(plans, transport)
+            )
+
     )
     MyTripScreen(viewModel = viewModel)
 }

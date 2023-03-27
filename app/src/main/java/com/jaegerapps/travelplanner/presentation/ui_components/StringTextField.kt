@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.jaegerapps.travelplanner.core.ui.LocalSpacing
@@ -25,6 +26,7 @@ fun StringTextField(
     onValueChange: (String) -> Unit,
     backgroundColor: Color = Color.White,
     textColor: Color = Color.Black,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
     textStyle: TextStyle = TextStyle(
         color = MaterialTheme.colors.primaryVariant,
         fontSize = 20.sp
@@ -42,8 +44,7 @@ fun StringTextField(
             value = value,
             onValueChange = onValueChange,
             textStyle = textStyle,
-            keyboardOptions = KeyboardOptions(
-            ),
+            keyboardOptions = keyboardOptions,
             singleLine = true,
             modifier = Modifier
                 .width(IntrinsicSize.Min)

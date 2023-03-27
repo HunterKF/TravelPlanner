@@ -21,18 +21,25 @@ import com.jaegerapps.travelplanner.presentation.ui_components.StringTextField
 fun LocationScreen(
     sharedViewModel: SharedViewModel,
     locationViewModel: LocationViewModel = hiltViewModel(),
-    onNextClick: () -> Unit,
+    onDayTripNext: () -> Unit,
+    onMultiTripNext: () -> Unit,
 ) {
     val spacing = LocalSpacing.current
     LaunchedEffect(key1 = true) {
         locationViewModel.uiEvent.collect { event ->
             when (event) {
-                is UiEvent.Success -> onNextClick()
+                is UiEvent.Success -> {
+                    if (sharedViewModel.requestState.requestItinerary.multiDay) {
+                        onMultiTripNext()
+                    } else {
+                        onDayTripNext()
+                    }
+                }
                 else -> Unit
             }
         }
     }
-    val state = sharedViewModel.state
+    val state = sharedViewModel.requestState
     Box(
         modifier = Modifier
             .fillMaxSize()

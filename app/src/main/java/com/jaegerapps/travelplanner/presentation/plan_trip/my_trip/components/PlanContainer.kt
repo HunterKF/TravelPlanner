@@ -1,4 +1,4 @@
-package com.jaegerapps.travelplanner.presentation.my_trip.components
+package com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background

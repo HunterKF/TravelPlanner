@@ -11,8 +11,9 @@ import androidx.navigation.compose.rememberNavController
 import com.jaegerapps.travelplanner.navigation.Route
 import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
 import com.jaegerapps.travelplanner.presentation.SingleTripScreen
+import com.jaegerapps.travelplanner.presentation.plan_trip.duration.DurationScreen
 import com.jaegerapps.travelplanner.presentation.home.HomeScreen
-import com.jaegerapps.travelplanner.presentation.my_trip.MyTripScreen
+import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.MyTripScreen
 import com.jaegerapps.travelplanner.presentation.plan_trip.about_trip.AboutTripScreen
 import com.jaegerapps.travelplanner.presentation.plan_trip.find_restaurants.FindRestaurantsScreen
 import com.jaegerapps.travelplanner.presentation.plan_trip.interests.InterestsScreen
@@ -39,9 +40,15 @@ class MainActivity : ComponentActivity() {
                     val paddingValues = it
                     NavHost(navController = navController, startDestination = Route.Home.route) {
                         composable(Route.Home.route) {
-                            HomeScreen {
-                                navController.navigate(Route.Location.route)
-                            }
+                            HomeScreen(
+                                onSingleTripNavigate = {
+                                    navController.navigate(Route.Location.route)
+                                },
+                                onMultiTripNavigate = {
+                                    sharedViewModel.onMultiDayClick()
+                                    navController.navigate(Route.Location.route)
+                                }
+                            )
                         }
                         composable(Route.SingleTrip.route) {
                             SingleTripScreen(
@@ -58,9 +65,17 @@ class MainActivity : ComponentActivity() {
                             MyTripScreen(viewModel = sharedViewModel)
                         }
                         composable(Route.Location.route) {
-                            LocationScreen(sharedViewModel = sharedViewModel) {
+                            LocationScreen(sharedViewModel = sharedViewModel, onDayTripNext = {
                                 navController.navigate(Route.AboutTrip.route)
+                            }
+                            ) {
+                                navController.navigate(Route.Duration.route)
 
+                            }
+                        }
+                        composable(Route.Duration.route) {
+                            DurationScreen(sharedViewModel = sharedViewModel) {
+                                navController.navigate(Route.AboutTrip.route)
                             }
                         }
                         composable(Route.AboutTrip.route) {
@@ -90,7 +105,6 @@ class MainActivity : ComponentActivity() {
                         composable(Route.Transport.route) {
                             TransportScreen(sharedViewModel = sharedViewModel) {
                                 navController.navigate(Route.ViewTrip.route)
-
                             }
                         }
                     }

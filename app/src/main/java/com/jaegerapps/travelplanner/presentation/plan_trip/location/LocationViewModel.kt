@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.util.UiEvent
-import com.jaegerapps.travelplanner.presentation.plan_trip.SingleTripState
+import com.jaegerapps.travelplanner.presentation.plan_trip.DayTripState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -24,11 +24,10 @@ class LocationViewModel : ViewModel() {
 
     fun onNextClick() {
         viewModelScope.launch {
-
             _uiEvent.send(UiEvent.Success)
         }
     }
-    fun updateSharedState(state: SingleTripState): SingleTripState {
+    fun updateSharedState(state: DayTripState): DayTripState {
         return state.copy(
             requestItinerary = state.requestItinerary.copy(
                 location = selectedActivityLevel

@@ -110,7 +110,7 @@ class ResponseMapperKtTest {
     }
     @Test
     fun toItinerary() {
-        val result = responseDto.toResponseInfoDto().toItinerary()
+        val result = responseDto.toResponseInfoDto().toPlannedItinerary()
         println(result)
         println(itineraryDto)
 

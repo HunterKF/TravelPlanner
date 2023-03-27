@@ -2,7 +2,9 @@ package com.jaegerapps.travelplanner.domain.models
 
 data class PlannedItinerary(
     val location: String,
-    val durationOfStay: String,
+    var durationOfStay: String = "1",
     val interests: String,
-    val dayPlan: DayPlan,
+    val multiTrip: Boolean = false,
+    var dayPlan: DayPlan,
+    var multiDayPlan: List<DayPlan> = listOf<DayPlan>(),
 )
