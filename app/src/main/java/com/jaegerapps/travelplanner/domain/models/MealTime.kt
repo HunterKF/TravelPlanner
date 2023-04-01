@@ -5,14 +5,5 @@ sealed class MealTime(val type: String) {
     object Lunch: MealTime("lunch")
     object Dinner: MealTime("dinner")
 
-    companion object {
-        fun fromString(type: String): MealTime {
-            return when(type) {
-                "breakfast" -> Breakfast
-                "lunch" -> Lunch
-                "dinner" -> Dinner
-                else -> Dinner
-            }
-        }
-    }
+
 }

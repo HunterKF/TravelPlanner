@@ -11,16 +11,13 @@ import com.example.core.util.UiEvent
 import com.example.core.util.UiText
 import com.jaegerapps.travelplanner.domain.mappers.stringToPlaceQuery
 import com.jaegerapps.travelplanner.domain.repositories.GptRepository
-import com.jaegerapps.travelplanner.domain.models.MealTime
-import com.jaegerapps.travelplanner.domain.models.MealRequest
 import com.jaegerapps.travelplanner.domain.models.RequestItinerary.Companion.toMultiDayStringRequest
 import com.jaegerapps.travelplanner.domain.models.RequestItinerary.Companion.toStringRequest
-import com.jaegerapps.travelplanner.domain.models.SinglePlan
-import com.jaegerapps.travelplanner.domain.models.SpecialRequest
+import com.jaegerapps.travelplanner.domain.models.google.GooglePrediction
+import com.jaegerapps.travelplanner.domain.models.google.GooglePredictionTerm
 import com.jaegerapps.travelplanner.domain.repositories.GooglePlaceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -36,21 +33,6 @@ class PlanTripViewModel @Inject constructor(
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
-
-
-    val meal = MealRequest(
-        meal = MealTime.Dinner,
-        cuisine = "",
-        id = 1
-    )
-
-    private val requests = mutableListOf<SpecialRequest>(
-        SpecialRequest(
-            id = 1,
-            day = 1,
-            request = ""
-        )
-    )
 
 
     /* fun onEvent(event: PlanTripEvent, context: Context? = null) {
@@ -159,6 +141,7 @@ class PlanTripViewModel @Inject constructor(
          }
      }*/
 
+
     fun onSendQuery(context: Context, sharedViewModel: SharedViewModel) {
         state = state.copy(
             requestItinerary = sharedViewModel.requestState.requestItinerary
@@ -168,7 +151,9 @@ class PlanTripViewModel @Inject constructor(
                 isLoading = true
             )
             val query =
-                stringToPlaceQuery(location = state.requestItinerary.location, context = context)
+                stringToPlaceQuery(
+                    location = state.requestItinerary.location,
+                )
 
             val resultPlaces = async {
                 placeRepository.getPlaces(query)
@@ -212,6 +197,36 @@ class PlanTripViewModel @Inject constructor(
         }
     }
 
+    fun onSearchAddressChange(address: String) {
+        getPredictions(address)
+    }
+
+    private fun getPredictions(address: String) {
+        viewModelScope.launch {
+            state.copy(
+                isLoading = true
+            )
+            val result = async {
+                placeRepository.autoComplete(input = address)
+                    .onSuccess {
+                        Log.d("Predictions", "$it")
+                        state = state.copy(
+                            isLoading = false,
+                            predictions = it
+                        )
+
+                    }
+                    .onFailure {
+                        state = state.copy(
+                            isLoading = false,
+                            error = it.message
+                        )
+                        _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+                    }
+            }.await()
+        }
+    }
+
     fun onMultiDaySendQuery(context: Context, sharedViewModel: SharedViewModel) {
         state = state.copy(
             requestItinerary = sharedViewModel.requestState.requestItinerary
@@ -228,18 +243,14 @@ class PlanTripViewModel @Inject constructor(
                 )
                 gptRepository.getResponse(prompt)
                     .onSuccess {
-                        it.dayPlan.planAndTransport.forEach { item ->
-                            when (item) {
-                                is SinglePlan -> {
-                                    state = state.copy(
-                                        requestItinerary = state.requestItinerary.copy(
-                                            exclusionList = state.requestItinerary.exclusionList.plus(
-                                                item.locationName
-                                            )
-                                        )
+                        it.dayPlan.planList.forEach { item ->
+                            state = state.copy(
+                                requestItinerary = state.requestItinerary.copy(
+                                    exclusionList = state.requestItinerary.exclusionList.plus(
+                                        item.locationName
                                     )
-                                }
-                            }
+                                )
+                            )
                         }
                         if (i == 1) {
                             sharedViewModel.onCompletion(it)
@@ -262,5 +273,35 @@ class PlanTripViewModel @Inject constructor(
                     }
             }
         }
+    }
+
+    fun onLocationNext(sharedViewModel: SharedViewModel) {
+        val placeId = sharedViewModel.localLocation.placeId
+        val sharedState = sharedViewModel.requestState.requestItinerary
+        viewModelScope.launch {
+            state.copy(
+                isLoading = true
+            )
+            val result = async {
+                placeRepository.getPlaceFromId(placeId)
+                    .onSuccess {
+                        Log.d("Predictions", "$it")
+                        sharedState.location = sharedState.location.copy(
+                            lat = it.lat,
+                            long = it.long
+                        )
+                        println(sharedState.location)
+
+                    }
+                    .onFailure {
+                        state = state.copy(
+                            isLoading = false,
+                            error = it.message
+                        )
+                        _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+                    }
+            }.await()
+        }
+
     }
 }

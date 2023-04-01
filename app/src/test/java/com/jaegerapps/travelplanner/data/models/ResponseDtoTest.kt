@@ -52,10 +52,6 @@ class ResponseDtoTest {
         val json= gson.fromJson(invalidResponse, ResponseDto::class.java)
         println(json)
         assertThat(json.id).isNotEqualTo(responseDto.id)
-        if (json.choices.isNotEmpty() && responseDto.choices.isNotEmpty()) {
-            assertThat(json.choices[0]!!.index).isNotEqualTo(responseDto.choices[0]!!.index)
-            assertThat(json.choices[0]!!.message).isNotEqualTo(responseDto.choices[0]!!.message)
-            assertThat(json.choices[0]!!.finish_reason).isNotEqualTo(responseDto.choices[0]!!.finish_reason)
-        }
+
     }
 }

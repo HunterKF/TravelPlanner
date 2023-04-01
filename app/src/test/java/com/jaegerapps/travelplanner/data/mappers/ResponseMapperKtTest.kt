@@ -32,24 +32,13 @@ class ResponseMapperKtTest {
                         events = 2,
                         plans = listOf(
                             PlanDto(
-                                address = "Frankfurt",
                                 name = "Alex's House",
                                 description = "A cool house with some cool cats",
                                 keywords = "Pig town",
                                 type = "family"
                             )
                         ),
-                        transportation = listOf(
-                            TransportationDto(
-                                "Hunter's House",
-                                "Busan, Korea",
-                                "Alex's House",
-                                "Berlin, Germany",
-                                "Plane",
-                                1800,
-                                directions = "Get on a plane and FLY"
-                            )
-                        )
+
                     )
                 )
             )
@@ -68,21 +57,18 @@ class ResponseMapperKtTest {
                     events = 2,
                     plans = listOf(
                         PlanDto(
-                            address = "5 Chome-2-1 Tsukiji, Chuo City, Tokyo 104-0045, Japan",
                             name = "Tsukiji Outer Market",
                             description = "A street market that offers a wide range of fresh seafood, fruits, and vegetables, as well as unique local snacks, ceramics, and cooking utensils.",
                             keywords = "local food,shopping,market",
                             type = "sightseeing"
                         ),
                         PlanDto(
-                            address = "1 Chome-8-3 Jingumae, Shibuya City, Tokyo 150-0001, Japan",
                             name = "Omotesando",
                             description = "A shopping district located in Shibuya that offers a variety of high-end fashion brands, cafes, and restaurants.",
                             keywords = "shopping,food,fashion brands,architecture",
                             type = "sightseeing"
                         ),
                     ),
-                    transportation = listOf(null)
                 )
 
             )

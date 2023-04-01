@@ -29,12 +29,10 @@ fun ResponseInfoDto.toPlannedItinerary(): PlannedItinerary {
     val dayPlanDto = this.itinerary.itinerary.day_plan
     val plansDto = this.itinerary.itinerary.day_plan.plans
     val plans = arrayListOf<SinglePlan>()
-    val transportation = arrayListOf<TransportationDetails>()
 
     plansDto.forEach { plan ->
         plans.add(
             SinglePlan(
-                address = plan.address,
                 locationName = plan.name,
                 description = plan.description,
                 keywords = plan.keywords,
@@ -42,31 +40,13 @@ fun ResponseInfoDto.toPlannedItinerary(): PlannedItinerary {
             )
         )
     }
-    val transportationDto = this.itinerary.itinerary.day_plan.transportation
-    println("Current transportationDto $transportationDto")
 
-    if (transportationDto.isNotEmpty()) {
-        transportationDto.forEach { info ->
-            transportation.add(
-                TransportationDetails(
-                    startingLocation = info?.starting ?: "",
-                    startingAddress = info?.starting_address ?: "",
-                    endingLocation = info?.ending ?: "",
-                    endingAddress = info?.ending_address ?: "",
-                    transportationType = info?.type_of_transportation ?: "",
-                    commuteTime = info?.commute_duration ?: 12,
-                    directions = info?.directions ?: ""
-                )
-            )
-        }
-    }
+
 
     val dayPlan = DayPlan(
         currentDay = dayPlanDto.day,
         numberOfEvents = dayPlanDto.events,
         planList = plans,
-        transportationDetails = transportation,
-        planAndTransport = mapPlansAndTransport(plans, transportation)
     )
     println(dayPlan)
     return PlannedItinerary(

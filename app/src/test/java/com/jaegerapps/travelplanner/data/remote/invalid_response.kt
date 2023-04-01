@@ -1,18 +1,17 @@
 package com.jaegerapps.travelplanner.data.remote
 
 val invalidResponse = """
-    Okay, here is your response:
     {
       "iasdd": "chatcmpl-6ug9wkFQRYOre0jjPWSmpXeTkafny",
       "object": "chat.completion",
       "created": 1678966448,
-      "model"asdad: "gpt-3.5-turbo-0301",asdasd
+      "model": "gpt-3.5-turbo-0301",
       "usage": {
         "prompt_tokens": 1384,
         "completion_tokens": 198,
         "total_tokens": 1582
       },
-      "choices": [
+      "choiㅇㅁㄴㅇㅁces": [
         {
           "message": {
             "role": "assistant",

@@ -15,18 +15,15 @@ import com.jaegerapps.travelplanner.presentation.plan_trip.duration.DurationScre
 import com.jaegerapps.travelplanner.presentation.home.HomeScreen
 import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.MyTripScreen
 import com.jaegerapps.travelplanner.presentation.plan_trip.about_trip.AboutTripScreen
-import com.jaegerapps.travelplanner.presentation.plan_trip.find_restaurants.FindRestaurantsScreen
 import com.jaegerapps.travelplanner.presentation.plan_trip.interests.InterestsScreen
 import com.jaegerapps.travelplanner.presentation.plan_trip.location.LocationScreen
-import com.jaegerapps.travelplanner.presentation.plan_trip.special_requests.SpecialRequestsScreen
-import com.jaegerapps.travelplanner.presentation.plan_trip.transport.TransportScreen
 import com.jaegerapps.travelplanner.ui.theme.TravelPlannerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+//        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
         super.onCreate(savedInstanceState)
         setContent {
             TravelPlannerTheme {
@@ -86,11 +83,11 @@ class MainActivity : ComponentActivity() {
                         }
                         composable(Route.Interests.route) {
                             InterestsScreen(sharedViewModel = sharedViewModel) {
-                                navController.navigate(Route.SpecialRequests.route)
+                                navController.navigate(Route.ViewTrip.route)
 
                             }
                         }
-                        composable(Route.SpecialRequests.route) {
+                        /*composable(Route.SpecialRequests.route) {
                             SpecialRequestsScreen(sharedViewModel = sharedViewModel) {
                                 navController.navigate(Route.FindRestaurant.route)
 
@@ -106,7 +103,7 @@ class MainActivity : ComponentActivity() {
                             TransportScreen(sharedViewModel = sharedViewModel) {
                                 navController.navigate(Route.ViewTrip.route)
                             }
-                        }
+                        }*/
                     }
                 }
             }

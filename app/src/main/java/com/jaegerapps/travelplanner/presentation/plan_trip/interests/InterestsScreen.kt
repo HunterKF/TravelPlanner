@@ -7,11 +7,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.core.util.UiEvent
 import com.jaegerapps.travelplanner.R
 import com.jaegerapps.travelplanner.core.ui.LocalSpacing
+import com.jaegerapps.travelplanner.presentation.plan_trip.PlanTripViewModel
 import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
 import com.jaegerapps.travelplanner.presentation.plan_trip.about_trip.InterestsViewModel
 import com.jaegerapps.travelplanner.presentation.ui_components.ActionButton
@@ -21,11 +23,13 @@ import com.jaegerapps.travelplanner.presentation.ui_components.StringTextField
 fun InterestsScreen(
     sharedViewModel: SharedViewModel,
     locationViewModel: InterestsViewModel = hiltViewModel(),
+    planTripViewModel: PlanTripViewModel = hiltViewModel(),
     onNextClick: () -> Unit,
 ) {
     val spacing = LocalSpacing.current
+    val context = LocalContext.current
     LaunchedEffect(key1 = true) {
-        locationViewModel.uiEvent.collect { event ->
+        planTripViewModel.uiEvent.collect { event ->
             when (event) {
                 is UiEvent.Success -> onNextClick()
                 else -> Unit
@@ -59,7 +63,17 @@ fun InterestsScreen(
             isEnabled = state.requestItinerary.aboutTrip.isNotBlank(),
             onClick = {
                 sharedViewModel.onInterestsChange(state.requestItinerary.interests)
-                locationViewModel.onNextClick()
+                if (state.requestItinerary.multiDay) {
+                    planTripViewModel.onMultiDaySendQuery(
+                        context = context,
+                        sharedViewModel = sharedViewModel
+                    )
+                } else {
+                    planTripViewModel.onSendQuery(
+                        context = context,
+                        sharedViewModel = sharedViewModel
+                    )
+                }
             },
             modifier = Modifier.align(Alignment.BottomEnd)
         )

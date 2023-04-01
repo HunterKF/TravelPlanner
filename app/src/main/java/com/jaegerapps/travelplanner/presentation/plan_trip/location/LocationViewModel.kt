@@ -27,12 +27,6 @@ class LocationViewModel : ViewModel() {
             _uiEvent.send(UiEvent.Success)
         }
     }
-    fun updateSharedState(state: DayTripState): DayTripState {
-        return state.copy(
-            requestItinerary = state.requestItinerary.copy(
-                location = selectedActivityLevel
-            )
-        )
-    }
+
 
 }

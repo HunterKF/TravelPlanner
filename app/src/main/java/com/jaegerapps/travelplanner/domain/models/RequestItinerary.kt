@@ -4,20 +4,17 @@ import android.content.Context
 import android.util.Log
 import com.example.core.util.UiText
 import com.jaegerapps.travelplanner.R
+import com.jaegerapps.travelplanner.domain.models.google.PlaceLocationInfo
 
 
 data class RequestItinerary(
     val days: String = "1",
     val aboutTrip: String = "",
     var places: List<String> = listOf<String>(),
-    val location: String = "",
+    var location: PlaceLocationInfo = PlaceLocationInfo(0.0, 0.0),
     val interests: String = "",
     val multiDay: Boolean = false,
     val specialRequests: List<SpecialRequest> = listOf(),
-    val transportation: Boolean = false,
-    val preferredTransportation: PreferredTransport = PreferredTransport.Walking,
-    val findRestaurants: Boolean = false,
-    val mealRequests: List<MealRequest?> = emptyList(),
     val exclusionList: List<String?> = listOf<String>(),
 ) {
     companion object {
@@ -51,52 +48,9 @@ data class RequestItinerary(
             }
 
 
-            val transportation =
-                if (!transportation) UiText.StringResource(R.string.request_transportation_false)
-                    .asString(context)
-                else
-                    UiText.StringResource(
-                        R.string.request_transportation_true,
-                        preferredTransportation.preference
-                    ).asString(context)
 
-            var restaurants = if (findRestaurants)
-                UiText.StringResource(R.string.request_find_restaurants_true).asString(context)
-            else
-                UiText.StringResource(R.string.request_find_restaurants_false).asString(context)
-            if (findRestaurants && mealRequests.isNotEmpty()) {
-                mealRequests.forEach {
-                    if (it != null) {
-                        var formattedRequest = ""
-                        formattedRequest = formattedRequest.plus(
-                            UiText.StringResource(
-                                R.string.request_find_meal_type,
-                                it.day.toString(),
-                                it.meal.type,
-                                it.cuisine
-                            )
-                                .asString(context)
-                        )
-
-
-                        if (it.foodRequest != "") {
-                            formattedRequest = formattedRequest.plus(
-                                UiText.StringResource(
-                                    R.string.request_find_meal_type_special_request,
-                                    it.foodRequest!!
-                                )
-                                    .asString(context)
-                            )
-                        }
-                        restaurants = restaurants.plus(
-                            formattedRequest
-                        )
-
-                    }
-                }
-            }
             val returnList =
-                locationQuery + aboutTrip + interests + validLocations + specialRequestsList + restaurants + transportation
+                locationQuery + aboutTrip + interests + validLocations + specialRequestsList
 
 
             return returnList
@@ -111,7 +65,6 @@ data class RequestItinerary(
                 UiText.StringResource(R.string.request_interests, interests).asString(context)
             val aboutTrip = UiText.StringResource(R.string.about_trip, aboutTrip).asString(context)
             val tripDetails = ItineraryDetails.mapItineraryDetails(
-                meals = mealRequests,
                 requests = specialRequests,
                 days = days
             )
@@ -133,50 +86,7 @@ data class RequestItinerary(
             }
 
 
-            val transportation =
-                if (!transportation) UiText.StringResource(R.string.request_transportation_false)
-                    .asString(context)
-                else
-                    UiText.StringResource(
-                        R.string.request_transportation_true,
-                        preferredTransportation.preference
-                    ).asString(context)
 
-            var restaurants = if (findRestaurants)
-                UiText.StringResource(R.string.request_find_restaurants_true).asString(context)
-            else
-                UiText.StringResource(R.string.request_find_restaurants_false).asString(context)
-            if (findRestaurants && mealRequests.isNotEmpty()) {
-                currentDayTripDetails.mealRequest.forEach {
-                    if (it != null) {
-                        var formattedRequest = ""
-                        formattedRequest = formattedRequest.plus(
-                            UiText.StringResource(
-                                R.string.request_find_meal_type,
-                                it.day.toString(),
-                                it.meal.type,
-                                it.cuisine
-                            )
-                                .asString(context)
-                        )
-
-
-                        if (it.foodRequest != "") {
-                            formattedRequest = formattedRequest.plus(
-                                UiText.StringResource(
-                                    R.string.request_find_meal_type_special_request,
-                                    it.foodRequest!!
-                                )
-                                    .asString(context)
-                            )
-                        }
-                        restaurants = restaurants.plus(
-                            formattedRequest
-                        )
-
-                    }
-                }
-            }
             var exclusionListFormat = listOf<String>()
             if (currentDay != 1) {
                 exclusionListFormat = exclusionListFormat.plus(
@@ -192,7 +102,7 @@ data class RequestItinerary(
                 }
             }
             val returnList =
-                locationDuration + aboutTrip + interests + specialRequestsList + restaurants + transportation + exclusionListFormat
+                locationDuration + aboutTrip + interests + specialRequestsList + exclusionListFormat
 
 
             return returnList

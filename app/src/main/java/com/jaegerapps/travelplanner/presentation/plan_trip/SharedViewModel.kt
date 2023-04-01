@@ -1,12 +1,12 @@
 package com.jaegerapps.travelplanner.presentation.plan_trip
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.core.util.UiEvent
 import com.jaegerapps.travelplanner.domain.models.*
+import com.jaegerapps.travelplanner.presentation.models.LocalLocation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 
@@ -24,8 +24,6 @@ class SharedViewModel : ViewModel() {
                 currentDay = "",
                 numberOfEvents = 1,
                 planList = listOf(),
-                transportationDetails = listOf(),
-                planAndTransport = listOf()
             )
 
         )
@@ -35,6 +33,8 @@ class SharedViewModel : ViewModel() {
     //this is what we change to make the request
     var requestState by mutableStateOf(DayTripState())
         private set
+
+    var localLocation by mutableStateOf(LocalLocation())
 
     var plannedState by mutableStateOf(
         PlannedItinerary(
@@ -46,8 +46,6 @@ class SharedViewModel : ViewModel() {
                 currentDay = "",
                 numberOfEvents = 1,
                 planList = listOf(),
-                transportationDetails = listOf(),
-                planAndTransport = listOf()
             )
 
         )
@@ -58,12 +56,6 @@ class SharedViewModel : ViewModel() {
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-
-    val meal = MealRequest(
-        meal = MealTime.Dinner,
-        cuisine = "",
-        id = 1
-    )
 
     fun onMultiDayClick() {
         requestState = requestState.copy(
@@ -76,10 +68,23 @@ class SharedViewModel : ViewModel() {
     fun onLocationChange(value: String) {
         requestState = requestState.copy(
             requestItinerary = requestState.requestItinerary.copy(
-                location = value
+                location =  requestState.requestItinerary.location.copy(
+                    location = value
+                )
             )
         )
     }
+
+    fun onDropDownClick(value: LocalLocation) {
+        requestState.requestItinerary.location = requestState.requestItinerary.location.copy(
+            location = value.name
+        )
+        localLocation = LocalLocation(
+            name = value.name,
+            placeId = value.placeId
+        )
+    }
+
 
     fun onDurationChange(value: String) {
         requestState = requestState.copy(
@@ -120,24 +125,6 @@ class SharedViewModel : ViewModel() {
         requestState = requestState.copy(
             requestItinerary = requestState.requestItinerary.copy(
                 specialRequests = specialRequests
-            )
-        )
-    }
-
-    fun updateStateMealList(value: List<MealRequest>, newValue: Boolean) {
-        requestState = requestState.copy(
-            requestItinerary = requestState.requestItinerary.copy(
-                findRestaurants = newValue,
-                mealRequests = value
-            )
-        )
-    }
-
-    fun updateStateTransport(requestTransportType: PreferredTransport) {
-        requestState = requestState.copy(
-            requestItinerary = requestState.requestItinerary.copy(
-                transportation = true,
-                preferredTransportation = requestTransportType
             )
         )
     }

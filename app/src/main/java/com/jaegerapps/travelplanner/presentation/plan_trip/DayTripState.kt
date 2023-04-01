@@ -1,9 +1,12 @@
 package com.jaegerapps.travelplanner.presentation.plan_trip
 
 import com.jaegerapps.travelplanner.domain.models.RequestItinerary
+import com.jaegerapps.travelplanner.domain.models.google.GooglePrediction
 
 data class DayTripState (
     val isLoading: Boolean = false,
     val error: String? = null,
-    val requestItinerary: RequestItinerary = RequestItinerary()
-)
+    val predictions: GooglePrediction = GooglePrediction(emptyList()),
+    val requestItinerary: RequestItinerary = RequestItinerary(),
+
+    )

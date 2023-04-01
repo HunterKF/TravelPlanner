@@ -7,6 +7,5 @@ data class DayPlanDto(
     val day: String,
     @field:Json(name = "events")
     val events: Int,
-    val plans: List<PlanDto>,
-    val transportation: List<TransportationDto?>
+    val plans: List<PlanDto>
 )

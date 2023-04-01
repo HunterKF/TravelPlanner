@@ -45,39 +45,15 @@ fun MyTripScreen(
             if (plan.multiTrip && plan.multiDayPlan.isNotEmpty()) {
                 val currentPlan =
                     plan.multiDayPlan.first { it.currentDay.toInt() == viewModel.currentDay.value }
-                currentPlan.planAndTransport.forEach { item ->
-                    when (item) {
-                        is SinglePlan -> {
-                            item {
-                                PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
-                            }
-                        }
-                        is TransportationDetails -> {
-                            item {
-                                TransportContainer(
-                                    transport = item,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
+                currentPlan.planList.forEach { item ->
+                    item {
+                        PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
                     }
                 }
             } else {
-                plan.dayPlan.planAndTransport.forEach { item ->
-                    when (item) {
-                        is SinglePlan -> {
-                            item {
-                                PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
-                            }
-                        }
-                        is TransportationDetails -> {
-                            item {
-                                TransportContainer(
-                                    transport = item,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
+                plan.dayPlan.planList.forEach { item ->
+                    item {
+                        PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
                     }
                 }
             }
@@ -165,8 +141,6 @@ fun MyTripPreview() {
             currentDay = "1",
             numberOfEvents = 1,
             planList = day1Plan,
-            transportationDetails = transport,
-            planAndTransport = mapPlansAndTransport(day1Plan, transport)
         ),
         multiTrip = true,
         multiDayPlan = listOf(
@@ -174,36 +148,26 @@ fun MyTripPreview() {
                 currentDay = "1",
                 numberOfEvents = 3,
                 planList = day1Plan,
-                transportationDetails = transport,
-                planAndTransport = mapPlansAndTransport(day1Plan, transport)
             ),
             DayPlan(
                 currentDay = "2",
                 numberOfEvents = 3,
                 planList = day2Plan,
-                transportationDetails = transport,
-                planAndTransport = mapPlansAndTransport(day2Plan, transport)
             ),
             DayPlan(
                 currentDay = "3",
                 numberOfEvents = 3,
                 planList = day1Plan,
-                transportationDetails = transport,
-                planAndTransport = mapPlansAndTransport(day1Plan, transport)
             ),
             DayPlan(
                 currentDay = "4",
                 numberOfEvents = 3,
                 planList = day1Plan,
-                transportationDetails = transport,
-                planAndTransport = mapPlansAndTransport(day1Plan, transport)
             ),
             DayPlan(
                 currentDay = "5",
                 numberOfEvents = 3,
                 planList = day1Plan,
-                transportationDetails = transport,
-                planAndTransport = mapPlansAndTransport(day1Plan, transport)
             ),
         )
 

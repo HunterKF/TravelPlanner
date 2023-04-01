@@ -4,9 +4,6 @@ data class DayPlan(
     val currentDay: String = "",
     val numberOfEvents: Int,
     val planList: List<SinglePlan>,
-    val transportationDetails: List<TransportationDetails?>,
-    val planAndTransport: List<Any?>,
-
     ) {
     companion object {
         fun mapPlansAndTransport(plans: List<SinglePlan>, transport: List<TransportationDetails>): List<Any> {

@@ -40,43 +40,7 @@ class ItineraryDetailsTest {
                 request = "This is request 5."
             ),
         )
-        mealRequest = listOf(
-            MealRequest(
-                id = 1,
-                day = 1,
-                meal = MealTime.Dinner,
-                cuisine = "French food",
-                foodRequest = "This is food request 1",
-            ),
-            MealRequest(
-                id = 2,
-                day = 1,
-                meal = MealTime.Lunch,
-                cuisine = "Korean food",
-                foodRequest = "This is food request 2",
-            ),
-            MealRequest(
-                id = 3,
-                day = 3,
-                meal = MealTime.Breakfast,
-                cuisine = "MExican food",
-                foodRequest = "This is food request 3",
-            ),
-            MealRequest(
-                id = 4,
-                day = 3,
-                meal = MealTime.Dinner,
-                cuisine = "German food",
-                foodRequest = "This is food request 4",
-            ),
-            MealRequest(
-                id = 5,
-                day = 2,
-                meal = MealTime.Breakfast,
-                cuisine = "Irish food",
-                foodRequest = "This is food request 5",
-            ),
-        )
+
         days = "4"
         itineraryDetails = listOf(
             ItineraryDetails(
@@ -93,22 +57,7 @@ class ItineraryDetailsTest {
                         request = "This is request 5."
                     )
                 ),
-                mealRequest = listOf(
-                    MealRequest(
-                        id = 1,
-                        day = 1,
-                        meal = MealTime.Dinner,
-                        cuisine = "French food",
-                        foodRequest = "This is food request 1",
-                    ),
-                    MealRequest(
-                        id = 2,
-                        day = 1,
-                        meal = MealTime.Lunch,
-                        cuisine = "Korean food",
-                        foodRequest = "This is food request 2",
-                    )
-                )
+
             ),
             ItineraryDetails(
                 day = "2",
@@ -124,35 +73,12 @@ class ItineraryDetailsTest {
                         request = "This is request 4."
                     ),
                 ),
-                mealRequest = listOf(
-                    MealRequest(
-                        id = 5,
-                        day = 2,
-                        meal = MealTime.Breakfast,
-                        cuisine = "Irish food",
-                        foodRequest = "This is food request 5",
-                    )
-                )
+
             ),
             ItineraryDetails(
                 day = "3",
                 specialRequest = listOf(),
-                mealRequest = listOf(
-                    MealRequest(
-                        id = 3,
-                        day = 3,
-                        meal = MealTime.Breakfast,
-                        cuisine = "MExican food",
-                        foodRequest = "This is food request 3",
-                    ),
-                    MealRequest(
-                        id = 4,
-                        day = 3,
-                        meal = MealTime.Dinner,
-                        cuisine = "German food",
-                        foodRequest = "This is food request 4",
-                    ),
-                )
+
             ),
             ItineraryDetails(
                 day = "4",
@@ -163,7 +89,6 @@ class ItineraryDetailsTest {
                         request = "This is request 3."
                     ),
                 ),
-                mealRequest = listOf()
             ),
         )
 
@@ -172,7 +97,6 @@ class ItineraryDetailsTest {
     @Test
     fun `Map raw data to itinerary details`() {
         val mappedList = ItineraryDetails.mapItineraryDetails(
-            meals = mealRequest,
             requests = specialRequest,
             days = days
         )
@@ -180,7 +104,6 @@ class ItineraryDetailsTest {
         for (i in 1..mappedList.size) {
             val index = i - 1
             assertThat(mappedList[index].day).isEqualTo(itineraryDetails[index].day)
-            assertThat(mappedList[index].mealRequest).isEqualTo(itineraryDetails[index].mealRequest)
             assertThat(mappedList[index].specialRequest).isEqualTo(itineraryDetails[index].specialRequest)
 
         }
