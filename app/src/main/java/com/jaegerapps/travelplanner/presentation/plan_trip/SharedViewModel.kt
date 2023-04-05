@@ -1,11 +1,14 @@
 package com.jaegerapps.travelplanner.presentation.plan_trip
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.core.util.UiEvent
-import com.jaegerapps.travelplanner.domain.models.*
+import com.jaegerapps.travelplanner.domain.models.Itinerary.DayPlan
+import com.jaegerapps.travelplanner.domain.models.Itinerary.PlannedItinerary
+import com.jaegerapps.travelplanner.domain.models.Itinerary.SpecialRequest
 import com.jaegerapps.travelplanner.presentation.models.LocalLocation
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -68,7 +71,7 @@ class SharedViewModel : ViewModel() {
     fun onLocationChange(value: String) {
         requestState = requestState.copy(
             requestItinerary = requestState.requestItinerary.copy(
-                location =  requestState.requestItinerary.location.copy(
+                location = requestState.requestItinerary.location.copy(
                     location = value
                 )
             )
@@ -97,12 +100,42 @@ class SharedViewModel : ViewModel() {
 
     fun onCompletion(incomingItinerary: PlannedItinerary) {
         _plannedItinerary.value = incomingItinerary
+        Log.d("MultiDay", "onCompletion has been tripped: ${_plannedItinerary.value.multiDayPlan}")
+    }
+    fun onFilterCompletion(incomingItinerary: PlannedItinerary) {
+        _plannedItinerary.value = incomingItinerary
+        Log.d("MultiDay", "onCompletion has been tripped: ${_plannedItinerary.value.multiDayPlan}")
+    }
+
+    fun onInterestAdd(value: String) {
+        requestState.requestItinerary.interests =
+            requestState.requestItinerary.interests.plus(value)
+        println("on add")
+
+        println(requestState.requestItinerary.interests)
 
     }
 
+    fun onInterestRemove(value: String) {
+        requestState.requestItinerary.interests =
+            requestState.requestItinerary.interests.minus(value)
+        println("on remove")
+
+        println(requestState.requestItinerary.interests)
+    }
+
     fun onAdd(incomingItinerary: PlannedItinerary) {
+        Log.d(
+            "MultiDay",
+            "About to add an itinerary, here is state: ${_plannedItinerary.value.multiDayPlan}"
+        )
         _plannedItinerary.value.multiDayPlan =
             _plannedItinerary.value.multiDayPlan.plus(incomingItinerary.dayPlan)
+        Log.d(
+            "MultiDay",
+            "Added an itinerary, here is state: ${_plannedItinerary.value.multiDayPlan}"
+        )
+
     }
 
     fun onAboutTripChange(value: String) {
@@ -116,7 +149,7 @@ class SharedViewModel : ViewModel() {
     fun onInterestsChange(value: String) {
         requestState = requestState.copy(
             requestItinerary = requestState.requestItinerary.copy(
-                interests = value
+                interests = requestState.requestItinerary.interests.plus(value)
             )
         )
     }

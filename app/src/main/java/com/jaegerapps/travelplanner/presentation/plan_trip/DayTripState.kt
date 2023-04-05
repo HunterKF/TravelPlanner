@@ -1,6 +1,6 @@
 package com.jaegerapps.travelplanner.presentation.plan_trip
 
-import com.jaegerapps.travelplanner.domain.models.RequestItinerary
+import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary
 import com.jaegerapps.travelplanner.domain.models.google.GooglePrediction
 
 data class DayTripState (

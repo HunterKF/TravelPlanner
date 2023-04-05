@@ -1,4 +1,4 @@
-package com.jaegerapps.travelplanner.domain.models
+package com.jaegerapps.travelplanner.domain.models.Itinerary
 
 sealed class PreferredTransport(val preference: String) {
     object Walking: PreferredTransport("walking")

@@ -1,7 +1,7 @@
 package com.jaegerapps.travelplanner.presentation.models
 
-import com.jaegerapps.travelplanner.domain.models.MealRequest
-import com.jaegerapps.travelplanner.domain.models.SpecialRequest
+import com.jaegerapps.travelplanner.domain.models.Itinerary.MealRequest
+import com.jaegerapps.travelplanner.domain.models.Itinerary.SpecialRequest
 
 sealed class PlanTripEvent {
     data class OnLocationChange(val query: String): PlanTripEvent()

@@ -1,6 +1,7 @@
 package com.jaegerapps.travelplanner.data.remote
 
 import com.jaegerapps.travelplanner.BuildConfig
+import com.jaegerapps.travelplanner.data.models.gpt.GptFilterPlaceDto
 import com.jaegerapps.travelplanner.data.remote.dto.ResponseDto
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -22,7 +23,15 @@ interface GptApi {
         "Authorization: Bearer ${BuildConfig.GPT_API_KEY}"
     )
     @POST("chat/completions")
-    suspend fun getResponse(
+    suspend fun getItineraryResponse(
+        @Body prompt: RequestBody,
+    ): ResponseDto
+    @Headers(
+        "Content-Type: application/json",
+        "Authorization: Bearer ${BuildConfig.GPT_API_KEY}"
+    )
+    @POST("chat/completions")
+    suspend fun filterList(
         @Body prompt: RequestBody,
     ): ResponseDto
 

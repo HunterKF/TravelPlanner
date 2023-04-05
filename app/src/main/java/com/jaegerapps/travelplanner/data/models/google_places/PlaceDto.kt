@@ -7,4 +7,6 @@ data class PlaceDto(
     val name: String,
     @field:Json(name = "formatted_address")
     val address: String,
+    @field:Json(name = "types")
+    val types: List<String>,
 )

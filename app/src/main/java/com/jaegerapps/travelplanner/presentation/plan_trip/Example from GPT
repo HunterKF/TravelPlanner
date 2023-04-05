@@ -1,0 +1,99 @@
+// Extracts the query from the state
+fun getQuery(): PlaceQuery {
+    return stringToPlaceQuery(
+        location = state.requestItinerary.location,
+    )
+}
+
+// Updates the state with the result of the place request
+suspend fun updatePlaces(query: PlaceQuery) {
+    var nextPage by mutableStateOf("")
+    val resultPlaces = async {
+        placeRepository.getPlaces(query)
+            .onSuccess {
+                nextPage = it.nextPage ?: ""
+                state = state.copy(
+                    requestItinerary = state.requestItinerary.copy(
+                        places = it.places
+                    )
+                )
+
+            }
+            .onFailure {
+                state = state.copy(
+                    isLoading = false,
+                    error = it.message
+                )
+                _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+            }
+    }.await()
+
+    // If there is a next page, request it and update the state accordingly
+    if (nextPage != "") {
+        getNextPageAndUpdatePlaces(query, nextPage)
+    }
+}
+
+// Requests the next page of results and updates the state
+suspend fun getNextPageAndUpdatePlaces(query: PlaceQuery, nextPage: String) {
+    placeRepository.getNextPage(query, pageToken = nextPage)
+        .onSuccess {
+            state = state.copy(
+                requestItinerary = state.requestItinerary.copy(
+                    places = state.requestItinerary.places.plus(it.places)
+                )
+            )
+        }
+        .onFailure {
+            state = state.copy(
+                isLoading = false,
+                error = it.message
+            )
+            _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+        }
+}
+
+// Generates a prompt and requests a response from the GPT repository
+suspend fun requestGptResponse(context: Context, sharedViewModel: SharedViewModel) {
+    val prompt = state.requestItinerary.toStringRequest(context = context)
+
+    gptRepository.getResponse(prompt)
+        .onSuccess {
+            Log.d("onSendQuery", "on send is starting:$it")
+            state = state.copy(
+                isLoading = false,
+            )
+            sharedViewModel.onCompletion(it)
+            Log.d("onSendQuery", "onSend has now completed ")
+
+            _uiEvent.send(UiEvent.Success)
+        }
+        .onFailure {
+            state = state.copy(
+                isLoading = false,
+                error = it.message
+            )
+            _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+        }
+}
+
+// Orchestrates the entire process of sending a query
+fun onSendQuery(context: Context, sharedViewModel: SharedViewModel) {
+    state = state.copy(
+        requestItinerary = sharedViewModel.requestState.requestItinerary
+    )
+
+    // Update the state to indicate that the query is loading
+    state = state.copy(
+        isLoading = true
+    )
+
+    // Get the query from the state and update the places
+    val query = getQuery()
+    viewModelScope.launch {
+        updatePlaces(query)
+
+        // Request a response from the GPT repository
+        requestGptResponse(context, sharedViewModel)
+    }
+}

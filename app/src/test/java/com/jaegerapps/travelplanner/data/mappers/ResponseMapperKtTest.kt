@@ -2,10 +2,12 @@ package com.jaegerapps.travelplanner.data.mappers
 
 import com.google.common.truth.Truth.assertThat
 import com.google.gson.Gson
+import com.jaegerapps.travelplanner.data.models.gpt.GptFilterPlaceDto
 import com.jaegerapps.travelplanner.data.models.itineraryDTO.*
 import com.jaegerapps.travelplanner.data.remote.dto.ChoicesDto
 import com.jaegerapps.travelplanner.data.remote.dto.MessageDto
 import com.jaegerapps.travelplanner.data.remote.dto.ResponseDto
+import com.jaegerapps.travelplanner.domain.models.gpt.GptFilterPlace
 import org.junit.Before
 
 import org.junit.Test
@@ -15,8 +17,11 @@ class ResponseMapperKtTest {
     private lateinit var gson: Gson
     private lateinit var messageDto: MessageDto
     private lateinit var itineraryDto: ItineraryDto
-    private lateinit var responseDto: ResponseDto
+    private lateinit var responseRequestDto: ResponseDto
     private lateinit var responseInfo: ResponseInfoDto
+    private lateinit var gptFilterPlaceDto: GptFilterPlaceDto
+    private lateinit var expectedGptFilterPlace: GptFilterPlace
+    private lateinit var responseFilterDto: ResponseDto
 
     @Before
     fun setUp() {
@@ -39,7 +44,7 @@ class ResponseMapperKtTest {
                             )
                         ),
 
-                    )
+                        )
                 )
             )
         )
@@ -52,28 +57,28 @@ class ResponseMapperKtTest {
             length = 1,
             interests = "Local food and shopping",
             day_plan = (
-                DayPlanDto(
-                    day = "1",
-                    events = 2,
-                    plans = listOf(
-                        PlanDto(
-                            name = "Tsukiji Outer Market",
-                            description = "A street market that offers a wide range of fresh seafood, fruits, and vegetables, as well as unique local snacks, ceramics, and cooking utensils.",
-                            keywords = "local food,shopping,market",
-                            type = "sightseeing"
+                    DayPlanDto(
+                        day = "1",
+                        events = 2,
+                        plans = listOf(
+                            PlanDto(
+                                name = "Tsukiji Outer Market",
+                                description = "A street market that offers a wide range of fresh seafood, fruits, and vegetables, as well as unique local snacks, ceramics, and cooking utensils.",
+                                keywords = "local food,shopping,market",
+                                type = "sightseeing"
+                            ),
+                            PlanDto(
+                                name = "Omotesando",
+                                description = "A shopping district located in Shibuya that offers a variety of high-end fashion brands, cafes, and restaurants.",
+                                keywords = "shopping,food,fashion brands,architecture",
+                                type = "sightseeing"
+                            ),
                         ),
-                        PlanDto(
-                            name = "Omotesando",
-                            description = "A shopping district located in Shibuya that offers a variety of high-end fashion brands, cafes, and restaurants.",
-                            keywords = "shopping,food,fashion brands,architecture",
-                            type = "sightseeing"
-                        ),
-                    ),
-                )
+                    )
 
-            )
+                    )
         )
-        responseDto = ResponseDto(
+        responseRequestDto = ResponseDto(
             id = "chatcmpl-6ug9wkFQRYOre0jjPWSmpXeTkafny",
             choices = arrayOf(
                 ChoicesDto(
@@ -86,20 +91,53 @@ class ResponseMapperKtTest {
                 )
             )
         )
+
+        responseFilterDto = ResponseDto(
+            id = "chatcmpl-6ug9wkFQRYOre0jjPWSmpXeTkafny",
+            choices = arrayOf(
+                ChoicesDto(
+                    message = MessageDto(
+                        role = "assistant",
+                        content =
+                        "{\"places\":[\"Kuta Beach\",\"Seminyak Beach\",\"Nasi Goreng Renon\",\"Jimbaran Beach\",\"Pura Tanah Lot\"]}"
+                    ),
+                    finish_reason = "stop",
+                    index = 0
+                )
+            )
+        )
+        expectedGptFilterPlace = GptFilterPlace(
+            places = listOf(
+                "Kuta Beach",
+                "Seminyak Beach",
+                "Nasi Goreng Renon",
+                "Jimbaran Beach",
+                "Pura Tanah Lot",
+            )
+        )
     }
 
     @Test
     fun toResponseInfo() {
-        val result = responseDto.toResponseInfoDto()
+        val result = responseRequestDto.toResponseInfoDto()
         assertThat(result.itinerary.itinerary.interests).isEqualTo(itineraryDto.interests)
 
     }
+
     @Test
-    fun toItinerary() {
-        val result = responseDto.toResponseInfoDto().toPlannedItinerary()
+    fun toPlannedItinerary() {
+        val result = responseRequestDto.toResponseInfoDto().toPlannedItinerary()
         println(result)
         println(itineraryDto)
 
         assertThat(result.dayPlan.currentDay).isEqualTo(itineraryDto.day_plan.day)
+    }
+
+    @Test
+    fun `GptFilterPlaceDto to GptFilterPlace`() {
+        val result = responseFilterDto.toGptFilterPlaceDto().toGptFilterPlace()
+        println(result)
+
+        assertThat(result).isEqualTo(expectedGptFilterPlace)
     }
 }

@@ -1,8 +1,5 @@
 package com.jaegerapps.travelplanner.data.models.gpt
 
-import com.google.gson.GsonBuilder
-import com.jaegerapps.travelplanner.R
-
 
 data class GptMessageSend(
     val role: String,
@@ -10,7 +7,7 @@ data class GptMessageSend(
 ) {
 
     companion object {
-        val baseSpecList = arrayOf(
+        val baseRequestList = arrayOf(
             GptMessageSend(
                 role = "system",
                 content = "You are a travel planner. " +
@@ -50,6 +47,49 @@ data class GptMessageSend(
                 content =
                 "{\"itinerary\":{\"location\":\"Danang, Vietnam\",\"length\":1,\"interests\":\"Culture, Relaxation, Beach\",\"day_plan\":{\"day\":1,\"events\":3,\"plans\":[{\"name\":\"Da Nang Museum of Cham Sculpture\",\"description\":\"A museum showcasing the culture and history of the Cham civilization.\",\"keywords\":\"culture, museum\",\"type\":\"sightseeing\"},{\"name\":\"Con Market\",\"description\":\"A beautiful white sand beach with clear blue water, perfect for swimming or relaxing on the shore.\",\"keywords\":\"market, food, shopping\",\"type\":\"sightseeing\"},{\"name\":\"Dragon Bridge\",\"description\":\"A bridge that crosses the Han River and is known for its dragon-shaped design, it is an attraction to see a fire and water show.\",\"keywords\":\"culture, landmark, design\",\"type\":\"sightseeing\"}]}}}"
             ),
+        )
+
+        val baseFilterList = arrayOf(
+            GptMessageSend(
+                role = "system",
+                content = "You are a travel planner's assistant. " +
+                        "You are given a traveller's interests, about their trip, and a list of places from Google Places API. The list contains names and the type." +
+                        "Based off the given information, filter the list down to 5 items that fit the user's interests and about trip. Only use the information given from the list. Do not make, create, or add new things that are not from the list. " +
+                        "Format the response in the follow json format. Ignore backslashes in response. Apply spacing between words in a sentence: " +
+                        "{\"places\":[\"STRING\",\"STRING\",\"STRING\",\"STRING\",\"STRING\"]}" +
+                        "Do not return anything but valid JSON. Validate JSON before returning."
+            ),
+            GptMessageSend(
+                role = "user",
+                content =
+                "I am traveling to Bali, Indonesia for 1 day.Here is a little about my trip:  I have never been to Bali, and I really want to see all of the amazing places in Bali!. I am interested in [tourist attraction, landmarks, parks].[Here is a Google Places list of valid locations to select from:, Leke Leke Waterfall, Air Terjun. Twin waterfall Lipah Petang, Sky Swing Bali, Bayan Ancient Tree, SURYA BINTANG ADVENTURES, Rimba swing Bali, DESA WISATA PINGE, Babahan Crystal Water, Secret Garden Village, Wahana Wisata Sambhrama Ashram, Air Terjun Yeh Hoo, Bedugul, bali hideaway bike, Rafting, True Bali Experience, Wisata Kayu Putih][]"
+            ),
+            GptMessageSend(
+                role = "assistant",
+                content =
+                "{\"places\":[\"Leke Leke Waterfall\",\"Bedugul\",\"Secret Garden Village\",\"Air Terjun Yeh Hoo\",\"Babahan Crystal Water\"]}"
+
+
+            ),
+            GptMessageSend(
+                role = "user",
+                content = "I am traveling to New York, NY, USA for 1 day.Here is a little about my trip: I want to see all of the big excitements of the big apple!. I am interested in [tourist attraction, night life, street food].[Here is a Google Places list of valid locations to select from:, One World Observatory, The Channel Gardens, Empire State Building, One Times Square, Top of The Rock, Flatiron Building, Statue City Cruises Battery Park/ Liberty Island, McGraw-Hill Waterfall, SUMMIT One Vanderbilt, Gantry Plaza State Park, Hudson River Park Trust, Chrysler Building, Statue of Liberty new york, SPYSCAPE, RiseNY, Times Square, Pier 15, East River Esplanade, Mini Plexiglass Waterfall Tunnel, The Battery, Flag Plaza, 254 Broadway][]"
+            ),
+            GptMessageSend(
+                role = "assistant",
+                content =
+                "{\"places\":[\"Times Square\",\"Gantry Plaza State Park\",\"Pier 15\",\"One World Observatory\",\"The Battery\"]}"
+            ),
+           /* GptMessageSend(
+                role = "user",
+                content =
+                "I am traveling to San Francisco, CA, USA for 1 day.Here is a little about my trip: I am interested in the food culture in San Francisco. I have heard a lot about the food trucks and local food.. I am interested in [street food, parks, restaurants].[Here is a Google Places list of valid locations to select from:, Sowl Bowls Thai Street Food, Sumac | Modern Street Food, Saap Ver Damn Good! Thai street food, Hippie Thai Street Food, Street Taco, Shihlin Taiwan Street Snacks, Aria Korean Street Food, iThai Bangkok Street Food, DragonEats, Street Taco, Za\u0027atar | Levantine Inspired Street Food, DragonEats, Kababayan Fast Food, Street Restaurant and Bar, Hawker Eats, Hello Sandwich \u0026 Noodle, Street Taco, DragonEats, The Chairman, Mau Restaurant, 1500-1514 Market St][]"
+            ),*/
+            /*GptMessageSend(
+                role = "assistant",
+                content =
+                "{\"places\":[\"The Chairman\",\"Sowl Bowls Thai Street Food \",\"Sumac | Modern Street Food\",\"Hawker Eats\",\"Za'atar | Levantine Inspired Street Food\"]}"
+            ),*/
         )
     }
 }

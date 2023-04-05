@@ -1,6 +1,9 @@
 package com.jaegerapps.travelplanner.domain.models
 
 import com.google.common.truth.Truth.assertThat
+import com.jaegerapps.travelplanner.domain.models.Itinerary.ItineraryDetails
+import com.jaegerapps.travelplanner.domain.models.Itinerary.MealRequest
+import com.jaegerapps.travelplanner.domain.models.Itinerary.SpecialRequest
 
 import org.junit.Before
 import org.junit.Test

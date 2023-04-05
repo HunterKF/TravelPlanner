@@ -8,9 +8,10 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface GooglePlaceApi {
-    @GET("maps/api/place/nearbysearch/json?keyword=tourist%20attraction&type=tourist%20attraction&key=${BuildConfig.PLACES_API_KEY}")
+    @GET("maps/api/place/nearbysearch/json?&key=${BuildConfig.PLACES_API_KEY}")
     suspend fun getPlaces(
-        @Query("radius") radius: Int = 3000,
+        @Query("keyword") type: String = "tourist attraction",
+        @Query("radius") radius: Int = 6000,
         @Query("location") location: String,
     ): PlaceResultDto
 

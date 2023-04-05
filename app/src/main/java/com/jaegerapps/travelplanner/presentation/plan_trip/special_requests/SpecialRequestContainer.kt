@@ -1,14 +1,10 @@
 package com.jaegerapps.travelplanner.presentation.plan_trip.special_requests
 
-import android.graphics.Paint.Align
 import android.widget.Toast
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -24,7 +20,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jaegerapps.travelplanner.core.ui.LocalSpacing
-import com.jaegerapps.travelplanner.domain.models.SpecialRequest
 import com.jaegerapps.travelplanner.presentation.ui_components.ActionButton
 
 @OptIn(ExperimentalMaterialApi::class)

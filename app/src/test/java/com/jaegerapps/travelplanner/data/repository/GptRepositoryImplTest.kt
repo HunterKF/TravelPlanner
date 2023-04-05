@@ -7,7 +7,8 @@ import com.jaegerapps.travelplanner.data.GptRepositoryImpl
 import com.jaegerapps.travelplanner.data.remote.GptApi
 import com.jaegerapps.travelplanner.data.remote.invalidResponse
 import com.jaegerapps.travelplanner.data.remote.validResponse
-import com.jaegerapps.travelplanner.domain.models.*
+import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary
+import com.jaegerapps.travelplanner.domain.models.Itinerary.SpecialRequest
 import com.jaegerapps.travelplanner.domain.models.google.PlaceLocationInfo
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
@@ -57,7 +58,7 @@ class GptRepositoryImplTest {
                 lat = 0.0,
                 long = 0.0
             ),
-            interests = "Interesting neighborhoods, cafes",
+            interests = listOf("outdoor recreation", "scenic views", "parks"),
             specialRequests =
             listOf(
                 SpecialRequest(

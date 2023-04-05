@@ -1,11 +1,9 @@
 package com.jaegerapps.travelplanner.domain.mappers
 
 import com.jaegerapps.travelplanner.domain.models.google.PlaceLocationInfo
-import org.junit.Assert.*
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
-import kotlin.math.exp
 
 class StringToPlaceQueryKtTest {
 
@@ -22,7 +20,7 @@ class StringToPlaceQueryKtTest {
 
     @Test
     fun `PlaceLocationInfo to encode string`() {
-        val string = stringToPlaceQuery(location)
+        val string = latLngToLocationString(location)
         println(string)
         assertThat(string).isEqualTo(expectedResult)
     }

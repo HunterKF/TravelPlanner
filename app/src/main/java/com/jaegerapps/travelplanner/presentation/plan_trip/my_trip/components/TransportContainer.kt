@@ -17,7 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.jaegerapps.travelplanner.core.ui.LocalSpacing
-import com.jaegerapps.travelplanner.domain.models.TransportationDetails
+import com.jaegerapps.travelplanner.domain.models.Itinerary.TransportationDetails
 
 @Composable
 fun TransportContainer(

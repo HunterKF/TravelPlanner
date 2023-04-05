@@ -1,4 +1,4 @@
-package com.jaegerapps.travelplanner.domain.models
+package com.jaegerapps.travelplanner.domain.models.Itinerary
 
 data class ItineraryDetails(
     val day: String,

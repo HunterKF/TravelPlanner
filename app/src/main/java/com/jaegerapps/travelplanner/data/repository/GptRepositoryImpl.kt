@@ -1,15 +1,15 @@
 package com.jaegerapps.travelplanner.data
 
 import android.util.Log
-import com.jaegerapps.travelplanner.data.mappers.toPlannedItinerary
-import com.jaegerapps.travelplanner.data.mappers.toJson
-import com.jaegerapps.travelplanner.data.mappers.toResponseInfoDto
+import com.jaegerapps.travelplanner.data.mappers.*
+import com.jaegerapps.travelplanner.data.models.gpt.GptFilterPlaceDto
 import com.jaegerapps.travelplanner.data.models.gpt.GptMessageSend
-import com.jaegerapps.travelplanner.data.models.gpt.GptModelSend
+import com.jaegerapps.travelplanner.data.models.gpt.GptModelSendDto
 import com.jaegerapps.travelplanner.data.remote.GptApi
 import com.jaegerapps.travelplanner.domain.repositories.GptRepository
 import com.jaegerapps.travelplanner.data.models.itineraryDTO.ResponseInfoDto
-import com.jaegerapps.travelplanner.domain.models.PlannedItinerary
+import com.jaegerapps.travelplanner.domain.models.Itinerary.PlannedItinerary
+import com.jaegerapps.travelplanner.domain.models.gpt.GptFilterPlace
 import javax.inject.Inject
 
 
@@ -20,9 +20,9 @@ class GptRepositoryImpl @Inject constructor(
         Log.d("getResponse", "Get response is starting. ")
         return try {
             Result.success(
-                GptModelSend(
+                GptModelSendDto(
                     messages =
-                    GptMessageSend.baseSpecList.plus(
+                    GptMessageSend.baseRequestList.plus(
                         GptMessageSend(
                             role = "user",
                             content = prompt
@@ -31,9 +31,38 @@ class GptRepositoryImpl @Inject constructor(
                 ).toJson()
                     .let {
                         Log.d("getResponse", "Get response is now in let. ")
-                        api.getResponse(it)
+                        api.getItineraryResponse(it)
                             .toResponseInfoDto()
                             .toPlannedItinerary()
+
+                    }
+            )
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+
+    override suspend fun filterLocations(prompt: String): Result<GptFilterPlace> {
+        Log.d("getResponse", "Get response is starting. ")
+        return try {
+            Result.success(
+                GptModelSendDto(
+                    messages =
+                    GptMessageSend.baseFilterList.plus(
+                        GptMessageSend(
+                            role = "user",
+                            content = prompt
+                        ),
+                    )
+                ).toJson()
+                    .let {
+                        Log.d("getResponse", "Get response is now in let. ")
+                        api.filterList(it)
+                            .toGptFilterPlaceDto()
+                            .toGptFilterPlace()
 
                     }
             )
@@ -47,7 +76,7 @@ class GptRepositoryImpl @Inject constructor(
     override suspend fun sendSystemSpec(): Result<ResponseInfoDto> {
         return try {
             Result.success(
-                GptModelSend(messages = GptMessageSend.baseSpecList).toJson()
+                GptModelSendDto(messages = GptMessageSend.baseRequestList).toJson()
                     .let { api.sendSystemSpec(it).toResponseInfoDto() }
             )
         } catch (e: Exception) {

@@ -8,15 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.jaegerapps.travelplanner.core.ui.LocalSpacing
-import com.jaegerapps.travelplanner.domain.mappers.mapPlansAndTransport
-import com.jaegerapps.travelplanner.domain.models.DayPlan
-import com.jaegerapps.travelplanner.domain.models.PlannedItinerary
-import com.jaegerapps.travelplanner.domain.models.SinglePlan
-import com.jaegerapps.travelplanner.domain.models.TransportationDetails
+import com.jaegerapps.travelplanner.domain.models.Itinerary.DayPlan
+import com.jaegerapps.travelplanner.domain.models.Itinerary.PlannedItinerary
+import com.jaegerapps.travelplanner.domain.models.Itinerary.SinglePlan
+import com.jaegerapps.travelplanner.domain.models.Itinerary.TransportationDetails
 import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
 import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components.PlanContainer
 import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components.ShowDay
-import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components.TransportContainer
 import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components.TripTopBar
 
 @Composable

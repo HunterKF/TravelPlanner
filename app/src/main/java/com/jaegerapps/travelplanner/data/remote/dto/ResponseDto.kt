@@ -6,7 +6,7 @@ data class ResponseDto(
     @field:Json(name = "id")
     val id: String,
     @field:Json(name = "choices")
-    val choices: Array<ChoicesDto?>
-    )
+    val choices: Array<ChoicesDto?>,
+)
 
 

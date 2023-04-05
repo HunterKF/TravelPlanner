@@ -1,4 +1,4 @@
-package com.jaegerapps.travelplanner.domain.models
+package com.jaegerapps.travelplanner.domain.models.Itinerary
 
 sealed class Interests(val type: String) {
     object Couple: Interests("couples")

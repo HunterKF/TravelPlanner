@@ -11,15 +11,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class InterestsViewModel : ViewModel() {
-    var selectedActivityLevel by mutableStateOf<String>("")
-        private set
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
-    fun onActivityLevelSelect(location: String) {
-        selectedActivityLevel = location
-    }
 
     fun onNextClick() {
         viewModelScope.launch {

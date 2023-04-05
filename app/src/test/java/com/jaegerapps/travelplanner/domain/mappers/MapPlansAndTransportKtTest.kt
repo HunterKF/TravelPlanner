@@ -1,8 +1,8 @@
 package com.jaegerapps.travelplanner.domain.mappers
 
 import com.google.common.truth.Truth.assertThat
-import com.jaegerapps.travelplanner.domain.models.SinglePlan
-import com.jaegerapps.travelplanner.domain.models.TransportationDetails
+import com.jaegerapps.travelplanner.domain.models.Itinerary.SinglePlan
+import com.jaegerapps.travelplanner.domain.models.Itinerary.TransportationDetails
 
 import org.junit.Before
 import org.junit.Test

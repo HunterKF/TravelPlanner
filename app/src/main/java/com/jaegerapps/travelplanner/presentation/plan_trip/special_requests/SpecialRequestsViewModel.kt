@@ -1,13 +1,10 @@
 package com.jaegerapps.travelplanner.presentation.plan_trip.special_requests
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.util.UiEvent
-import com.jaegerapps.travelplanner.domain.models.MealRequest
-import com.jaegerapps.travelplanner.domain.models.SpecialRequest
+import com.jaegerapps.travelplanner.domain.models.Itinerary.SpecialRequest
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch

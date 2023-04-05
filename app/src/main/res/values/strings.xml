@@ -27,5 +27,7 @@
     <string name="please_wait">Please wait while we prepare your trip.</string>
     <string name="exclude_these_places">"Exclude these places from this trip: "</string>
     <string name="things_to_do_in">things to do in %1$s</string>
-    <string name="list_of_valid_locations">Here is a Google Places list of valid locations to select from. Do not choose or make locations that are not on this list: </string>
+    <string name="list_of_valid_locations">Here is a Google Places list of valid locations to select from. If something is not on the list, DO NOT create a place that is not on the list. Do not choose or make locations that are not on this list: </string>
+    <string name="ending_message">"If you cannot find something that fits the user's interests, requests, or information, that is okay. Do not create anything or use anything that is not on the list. "</string>
+    <string name="ending_message_filter">Filter this list based on my interests. Return 5 places in the assigned JSON format.</string>
 </resources>

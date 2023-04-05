@@ -1,7 +1,7 @@
 package com.jaegerapps.travelplanner.domain.mappers
 
-import com.jaegerapps.travelplanner.domain.models.SinglePlan
-import com.jaegerapps.travelplanner.domain.models.TransportationDetails
+import com.jaegerapps.travelplanner.domain.models.Itinerary.SinglePlan
+import com.jaegerapps.travelplanner.domain.models.Itinerary.TransportationDetails
 
 fun mapPlansAndTransport(plans: List<SinglePlan>, transport: List<TransportationDetails>): List<Any> {
             val mappedList = plans.flatMap { singlePlan ->

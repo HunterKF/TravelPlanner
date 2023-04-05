@@ -9,15 +9,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.util.UiEvent
 import com.example.core.util.UiText
-import com.jaegerapps.travelplanner.domain.mappers.stringToPlaceQuery
+import com.jaegerapps.travelplanner.domain.mappers.latLngToLocationString
+import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary.Companion.toFilterString
 import com.jaegerapps.travelplanner.domain.repositories.GptRepository
-import com.jaegerapps.travelplanner.domain.models.RequestItinerary.Companion.toMultiDayStringRequest
-import com.jaegerapps.travelplanner.domain.models.RequestItinerary.Companion.toStringRequest
-import com.jaegerapps.travelplanner.domain.models.google.GooglePrediction
-import com.jaegerapps.travelplanner.domain.models.google.GooglePredictionTerm
+import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary.Companion.toMultiDayStringRequest
+import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary.Companion.toRequestString
+import com.jaegerapps.travelplanner.domain.models.google.PlaceInfo
 import com.jaegerapps.travelplanner.domain.repositories.GooglePlaceRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -143,6 +145,7 @@ class PlanTripViewModel @Inject constructor(
 
 
     fun onSendQuery(context: Context, sharedViewModel: SharedViewModel) {
+        //here we copy the state so we have an alterable state to use in PlanTripVM
         state = state.copy(
             requestItinerary = sharedViewModel.requestState.requestItinerary
         )
@@ -150,55 +153,218 @@ class PlanTripViewModel @Inject constructor(
             state = state.copy(
                 isLoading = true
             )
-            val query =
-                stringToPlaceQuery(
-                    location = state.requestItinerary.location,
+            val query = getLocationString()
+            val places = async {
+                getAndFilterPlaces(
+                    query, context, sharedViewModel
                 )
-
-            val resultPlaces = async {
-                placeRepository.getPlaces(query)
-                    .onSuccess {
-                        state = state.copy(
-                            requestItinerary = state.requestItinerary.copy(
-                                places = it.places
-                            )
-                        )
-                    }
-                    .onFailure {
-                        state = state.copy(
-                            isLoading = false,
-                            error = it.message
-                        )
-                        _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
-                    }
             }.await()
-            val resultGpt = async {
-                val prompt = state.requestItinerary.toStringRequest(context = context)
-
-                gptRepository.getResponse(prompt)
-                    .onSuccess {
-                        Log.d("onSendQuery", "on send is starting:$it")
-                        state = state.copy(
-                            isLoading = false,
-                        )
-                        sharedViewModel.onCompletion(it)
-                        Log.d("onSendQuery", "onSend has now completed ")
-
-                        _uiEvent.send(UiEvent.Success)
-                    }
-                    .onFailure {
-                        state = state.copy(
-                            isLoading = false,
-                            error = it.message
-                        )
-                        _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
-                    }
-            }.await()
+            val response = async { getGptResponse(context, sharedViewModel) }.await()
         }
     }
 
     fun onSearchAddressChange(address: String) {
         getPredictions(address)
+    }
+
+
+    //this encodes the lat lng to a URL string
+    private fun getLocationString(): String {
+        return latLngToLocationString(
+            location = state.requestItinerary.location,
+        )
+    }
+
+    private suspend fun getPlaces(
+        query: String,
+        type: String?,
+        onComplete: (List<PlaceInfo>) -> Unit,
+    ) {
+        var nextPage by mutableStateOf("")
+        val resultPlaces =
+            placeRepository.getPlaces(query = query, type = type)
+                .onSuccess {
+                    nextPage = it.nextPage ?: ""
+                    onComplete(it.places)
+                }
+                .onFailure {
+                    state = state.copy(
+                        isLoading = false,
+                        error = it.message
+                    )
+                    _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+                }
+        // If there is a next page, request it and update the state accordingly
+        if (nextPage != "") {
+            getNextPageAndUpdatePlaces(query, nextPage)
+        }
+
+    }
+
+    private suspend fun getNextPageAndUpdatePlaces(query: String, nextPage: String) {
+        val nextPage =
+            placeRepository.getNextPage(query, pageToken = nextPage)
+                .onSuccess {
+                    state = state.copy(
+                        requestItinerary = state.requestItinerary.copy(
+                            places = state.requestItinerary.places.plus(it.places)
+                        )
+                    )
+                }
+                .onFailure {
+                    state = state.copy(
+                        isLoading = false,
+                        error = it.message
+                    )
+                    _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+                }
+    }
+
+    private suspend fun getAndFilterPlaces(
+        query: String,
+        context: Context,
+        sharedViewModel: SharedViewModel,
+    ) {
+        val query = getLocationString()
+
+        // Create a list to store async operations
+        val coroutines = mutableListOf<Deferred<Unit>>()
+
+        state.requestItinerary.interests.forEach {
+            coroutines.add(
+                viewModelScope.async {
+                    var temporaryList = listOf<PlaceInfo>()
+                    fun updateList(places: List<PlaceInfo>) {
+                        temporaryList = temporaryList.plus(places)
+                    }
+
+                    val places = async {
+                        getPlaces(
+                            query = query,
+                            type = it
+                        ) {
+                            ::updateList
+                        }
+                    }.await()
+                    var requestCopy = state.requestItinerary
+                    requestCopy = requestCopy.copy(
+                        places = temporaryList
+                    )
+                    val prompt = requestCopy.toFilterString(context)
+                    val gptResponse = async {
+                        getGptFilterResponse(
+                            context = context, sharedViewModel = sharedViewModel,
+                            prompt = prompt
+                        )
+                    }.await()
+                }
+            )
+        }
+
+        // Wait for all async operations to complete
+        coroutines.awaitAll()
+
+        // Call the getGptResponse function after all coroutines are completed
+        getGptResponse(context, sharedViewModel)
+        /*state.requestItinerary.interests.forEach {
+            viewModelScope.launch {
+                var temporaryList = listOf<PlaceInfo>()
+                fun updateList(places: List<PlaceInfo>) {
+                    temporaryList = temporaryList.plus(places)
+                }
+
+                val places = async {
+                    getPlaces(
+                        query = query,
+                        type = it
+                    ) {
+                        ::updateList
+                    }
+                }.await()
+                var requestCopy = state.requestItinerary
+                requestCopy = requestCopy.copy(
+                    places = temporaryList
+                )
+                val prompt = requestCopy.toFilterString(context)
+                val gptResponse = async {
+                    getGptFilterResponse(
+                        context = context, sharedViewModel = sharedViewModel,
+                        prompt = prompt
+                    )
+                }.await()
+
+            }
+        }*/
+    }
+
+    private suspend fun getGptFilterResponse(
+        context: Context,
+        sharedViewModel: SharedViewModel,
+        prompt: String,
+    ) {
+        val resultGpt =
+            gptRepository.filterLocations(prompt)
+                .onSuccess {
+                    Log.d("onSendQuery", "on send is starting:$it")
+                    var places = listOf<PlaceInfo>()
+                    it.places.forEach { place ->
+                        places = places.plus(
+                            PlaceInfo(
+                                name = place
+                            )
+                        )
+                    }
+                    state = state.copy(
+                        isLoading = false,
+                        requestItinerary = state.requestItinerary.copy(
+                            places = sharedViewModel.requestState.requestItinerary.places.plus(
+                                places
+                            )
+                        )
+                    )
+
+
+                    var newState = state.requestItinerary.copy(
+                        places = sharedViewModel.requestState.requestItinerary.places.plus(places)
+                    )
+                    Log.d("onSendQuery", "onSend has now completed ")
+
+//                    _uiEvent.send(UiEvent.Success)
+                }
+                .onFailure {
+                    state = state.copy(
+                        isLoading = false,
+                        error = it.message
+                    )
+                    _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+                    it.printStackTrace()
+                    it.message?.let { it1 -> Log.e("PlanTripVM", it1) }
+                }
+    }
+
+    private suspend fun getGptResponse(context: Context, sharedViewModel: SharedViewModel) {
+        val prompt = state.requestItinerary.toRequestString(context = context)
+        val resultGpt =
+            gptRepository.getResponse(prompt)
+                .onSuccess {
+                    Log.d("onSendQuery", "on send is starting:$it")
+                    state = state.copy(
+                        isLoading = false,
+                    )
+                    sharedViewModel.onCompletion(it)
+                    Log.d("onSendQuery", "onSend has now completed ")
+
+                    _uiEvent.send(UiEvent.Success)
+                }
+                .onFailure {
+                    state = state.copy(
+                        isLoading = false,
+                        error = it.message
+                    )
+                    it.printStackTrace()
+                    it.message?.let { it1 -> Log.e("PlanTripVM", it1) }
+                    _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+                }
     }
 
     private fun getPredictions(address: String) {
@@ -221,6 +387,8 @@ class PlanTripViewModel @Inject constructor(
                             isLoading = false,
                             error = it.message
                         )
+                        it.printStackTrace()
+                        it.message?.let { it1 -> Log.e("PlanTripVM", it1) }
                         _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
                     }
             }.await()
@@ -241,36 +409,38 @@ class PlanTripViewModel @Inject constructor(
                 state = state.copy(
                     isLoading = true
                 )
-                gptRepository.getResponse(prompt)
-                    .onSuccess {
-                        it.dayPlan.planList.forEach { item ->
-                            state = state.copy(
-                                requestItinerary = state.requestItinerary.copy(
-                                    exclusionList = state.requestItinerary.exclusionList.plus(
-                                        item.locationName
+                val result = async {
+                    gptRepository.getResponse(prompt)
+                        .onSuccess {
+                            it.dayPlan.planList.forEach { item ->
+                                state = state.copy(
+                                    requestItinerary = state.requestItinerary.copy(
+                                        exclusionList = state.requestItinerary.exclusionList.plus(
+                                            item.locationName
+                                        )
                                     )
                                 )
-                            )
+                            }
+                            if (i == 1) {
+                                sharedViewModel.onCompletion(it)
+                            } else {
+                                sharedViewModel.onAdd(it)
+                            }
+                            if (i == days) {
+                                state = state.copy(
+                                    isLoading = false,
+                                )
+                                _uiEvent.send(UiEvent.Success)
+                            }
                         }
-                        if (i == 1) {
-                            sharedViewModel.onCompletion(it)
-                        } else {
-                            sharedViewModel.onAdd(it)
-                        }
-                        if (i == days) {
+                        .onFailure {
                             state = state.copy(
                                 isLoading = false,
+                                error = it.message
                             )
-                            _uiEvent.send(UiEvent.Success)
+                            _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
                         }
-                    }
-                    .onFailure {
-                        state = state.copy(
-                            isLoading = false,
-                            error = it.message
-                        )
-                        _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
-                    }
+                }.await()
             }
         }
     }
