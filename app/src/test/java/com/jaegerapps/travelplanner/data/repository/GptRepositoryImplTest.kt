@@ -6,7 +6,7 @@ import com.google.gson.Gson
 import com.jaegerapps.travelplanner.data.GptRepositoryImpl
 import com.jaegerapps.travelplanner.data.remote.GptApi
 import com.jaegerapps.travelplanner.data.remote.invalidResponse
-import com.jaegerapps.travelplanner.data.remote.validResponse
+import com.jaegerapps.travelplanner.data.remote.valid_gpt_itinerary_response
 import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary
 import com.jaegerapps.travelplanner.domain.models.Itinerary.SpecialRequest
 import com.jaegerapps.travelplanner.domain.models.google.PlaceLocationInfo
@@ -80,7 +80,7 @@ class GptRepositoryImplTest {
         mockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(200)
-                .setBody(validResponse)
+                .setBody(valid_gpt_itinerary_response)
         )
         val result = repository.sendSystemSpec()
 
@@ -92,7 +92,7 @@ class GptRepositoryImplTest {
         mockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(403)
-                .setBody(validResponse)
+                .setBody(valid_gpt_itinerary_response)
         )
         val result = repository.sendSystemSpec()
 
@@ -115,7 +115,7 @@ class GptRepositoryImplTest {
         mockWebServer.enqueue(
             MockResponse()
                 .setResponseCode(200)
-                .setBody(validResponse)
+                .setBody(valid_gpt_itinerary_response)
         )
 
        /* val result = repository.getResponse(userItineraryRequest.toString())

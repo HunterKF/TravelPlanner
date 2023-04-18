@@ -117,8 +117,11 @@ data class RequestItinerary(
             var specialRequestsList = listOf<String>()
             var validLocations = listOf<String>(
                 UiText.StringResource(R.string.list_of_valid_locations).asString(context),
-                places.toString()
             )
+            places.forEach {
+                validLocations = validLocations.plus(it.name)
+//                validLocations = validLocations.plus(it.type.toString())
+            }
             currentDayTripDetails.specialRequest.forEach {
                 Log.d("RequestItinerary", "Current special request value: $it")
                 if (it.request == "" && it.day == currentDay) {

@@ -10,19 +10,18 @@ import androidx.lifecycle.viewModelScope
 import com.example.core.util.UiEvent
 import com.example.core.util.UiText
 import com.jaegerapps.travelplanner.domain.mappers.latLngToLocationString
+import com.jaegerapps.travelplanner.domain.models.Itinerary.PlannedItinerary
 import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary.Companion.toFilterString
-import com.jaegerapps.travelplanner.domain.repositories.GptRepository
 import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary.Companion.toMultiDayStringRequest
 import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary.Companion.toRequestString
 import com.jaegerapps.travelplanner.domain.models.google.PlaceInfo
 import com.jaegerapps.travelplanner.domain.repositories.GooglePlaceRepository
+import com.jaegerapps.travelplanner.domain.repositories.GptRepository
+import com.jaegerapps.travelplanner.presentation.models.PlanTripEvent
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,111 +36,31 @@ class PlanTripViewModel @Inject constructor(
     val uiEvent = _uiEvent.receiveAsFlow()
 
 
-    /* fun onEvent(event: PlanTripEvent, context: Context? = null) {
+     fun onEvent(event: PlanTripEvent, context: Context? = null) {
          when (event) {
-             is PlanTripEvent.OnLocationChange -> {
-                 state = state.copy(
-                     requestItinerary = state.requestItinerary.copy(
-                         location = event.query
-                     )
-                 )
-             }
-             is PlanTripEvent.OnAboutTripChange -> {
-                 state = state.copy(
-                     requestItinerary = state.requestItinerary.copy(
-                         aboutTrip = event.query
-                     )
-                 )
-             }
-             is PlanTripEvent.OnDurationChange -> {
-                 state = state.copy(
-                     requestItinerary = state.requestItinerary.copy(
-                         days = event.query.ifBlank { "0" }
-                     )
 
-                 )
-             }
-             is PlanTripEvent.OnInterestsChange -> {
-                 state = state.copy(
-                     requestItinerary = state.requestItinerary.copy(
-                         interests = event.query
-                     )
-                 )
-             }
-             is PlanTripEvent.OnRequestsChange -> {
-                 requests.add(event.query)
-                 state = state.copy(
-                     requestItinerary = state.requestItinerary.copy(
-                         specialRequests = requests
-                     )
-
-                 )
-             }
-             is PlanTripEvent.OnRequestDelete -> {
-                 requests.minus(event.query)
-                 state = state.copy(
-                     requestItinerary = state.requestItinerary.copy(
-                         specialRequests = requests
-                     )
-
-                 )
-             }
-             is PlanTripEvent.OnTransportationChange -> {
-                 state = state.copy(
-                     requestItinerary = state.requestItinerary.copy(
-                         transportation = event.query
-                     )
-                 )
-             }
-             is PlanTripEvent.OnPreferredTransportationChange -> {
-                 state = state.copy(
-                     requestItinerary = state.requestItinerary.copy(
-                         preferredTransportation = PreferredTransport.fromString(event.query)
-                     )
-                 )
-             }
-             is PlanTripEvent.OnFindRestaurantChange -> {
-                 state = state.copy(
-                     requestItinerary = state.requestItinerary.copy(
-                         findRestaurants = event.query
-                     )
-                 )
-             }
-             is PlanTripEvent.OnAddMeal -> {
-                 state =  state.copy(
-                     requestItinerary = state.requestItinerary.copy(
-                         mealRequests = state.requestItinerary.mealRequests.plus(event.query)
-                     )
-                 )
-             }
-             is PlanTripEvent.OnMealTypeTimeChange -> {
-                 meal.copy(
-                     meal = MealTime.fromString(event.query)
-
-                 )
-
-             }
-             is PlanTripEvent.OnMealTypeCuisineChange -> {
-                 meal.copy(
-                     cuisine = event.query
-                 )
-             }
-             is PlanTripEvent.OnMealTypeFoodRequestChange -> {
-                 meal.copy(
-                     foodRequest = event.query
-
-                 )
-             }
-             is PlanTripEvent.OnClear -> {
-
-             }
              is PlanTripEvent.OnSearch -> {
                  if (context != null) {
  //                    onSendQuery(context = context, sharedViewModel = sharedViewModel)
                  }
              }
+             is PlanTripEvent.OnMultiSend -> {
+                 viewModelScope.launch {
+                     if (context != null) {
+                         onMultiDaySendQuery(context, sharedViewModel = event.sharedViewModel)
+                     }
+                 }
+             }
+             is PlanTripEvent.OnSingleSend -> {
+                 if (context != null) {
+                     onSendQuery(context, event.sharedViewModel)
+                 }
+             }
+             else -> {
+
+             }
          }
-     }*/
+     }
 
 
     fun onSendQuery(context: Context, sharedViewModel: SharedViewModel) {
@@ -159,7 +78,6 @@ class PlanTripViewModel @Inject constructor(
                     query, context, sharedViewModel
                 )
             }.await()
-            val response = async { getGptResponse(context, sharedViewModel) }.await()
         }
     }
 
@@ -178,38 +96,40 @@ class PlanTripViewModel @Inject constructor(
     private suspend fun getPlaces(
         query: String,
         type: String?,
-        onComplete: (List<PlaceInfo>) -> Unit,
-    ) {
+//        onComplete: (List<PlaceInfo>) -> Unit,
+    ): List<PlaceInfo> {
         var nextPage by mutableStateOf("")
+        var placeList = listOf<PlaceInfo>()
         val resultPlaces =
             placeRepository.getPlaces(query = query, type = type)
                 .onSuccess {
                     nextPage = it.nextPage ?: ""
-                    onComplete(it.places)
+                    placeList = placeList.plus(it.places)
                 }
                 .onFailure {
                     state = state.copy(
                         isLoading = false,
                         error = it.message
                     )
+                    Log.e("MultiString", "get place error: ${it.message}")
                     _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
                 }
         // If there is a next page, request it and update the state accordingly
         if (nextPage != "") {
-            getNextPageAndUpdatePlaces(query, nextPage)
+            placeList = placeList.plus(getNextPageAndUpdatePlaces(query, nextPage))
         }
-
+        return placeList
     }
 
-    private suspend fun getNextPageAndUpdatePlaces(query: String, nextPage: String) {
+    private suspend fun getNextPageAndUpdatePlaces(
+        query: String,
+        nextPage: String,
+    ): List<PlaceInfo> {
+        var placeList = listOf<PlaceInfo>()
         val nextPage =
             placeRepository.getNextPage(query, pageToken = nextPage)
                 .onSuccess {
-                    state = state.copy(
-                        requestItinerary = state.requestItinerary.copy(
-                            places = state.requestItinerary.places.plus(it.places)
-                        )
-                    )
+                    placeList = placeList.plus(it.places)
                 }
                 .onFailure {
                     state = state.copy(
@@ -218,6 +138,7 @@ class PlanTripViewModel @Inject constructor(
                     )
                     _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
                 }
+        return placeList
     }
 
     private suspend fun getAndFilterPlaces(
@@ -239,24 +160,27 @@ class PlanTripViewModel @Inject constructor(
                     }
 
                     val places = async {
-                        getPlaces(
+                        temporaryList = getPlaces(
                             query = query,
                             type = it
-                        ) {
-                            ::updateList
-                        }
+                        )
                     }.await()
                     var requestCopy = state.requestItinerary
                     requestCopy = requestCopy.copy(
                         places = temporaryList
                     )
                     val prompt = requestCopy.toFilterString(context)
-                    val gptResponse = async {
-                        getGptFilterResponse(
-                            context = context, sharedViewModel = sharedViewModel,
-                            prompt = prompt
-                        )
-                    }.await()
+                    if (temporaryList.isNotEmpty()) {
+                        val gptResponse = async {
+                            getGptFilterResponse(
+                                context = context, sharedViewModel = sharedViewModel,
+                                prompt = prompt
+                            )
+                        }.await()
+                    } else {
+                        state.requestItinerary.interests =
+                            state.requestItinerary.interests.plus("food")
+                    }
                 }
             )
         }
@@ -266,36 +190,8 @@ class PlanTripViewModel @Inject constructor(
 
         // Call the getGptResponse function after all coroutines are completed
         getGptResponse(context, sharedViewModel)
-        /*state.requestItinerary.interests.forEach {
-            viewModelScope.launch {
-                var temporaryList = listOf<PlaceInfo>()
-                fun updateList(places: List<PlaceInfo>) {
-                    temporaryList = temporaryList.plus(places)
-                }
-
-                val places = async {
-                    getPlaces(
-                        query = query,
-                        type = it
-                    ) {
-                        ::updateList
-                    }
-                }.await()
-                var requestCopy = state.requestItinerary
-                requestCopy = requestCopy.copy(
-                    places = temporaryList
-                )
-                val prompt = requestCopy.toFilterString(context)
-                val gptResponse = async {
-                    getGptFilterResponse(
-                        context = context, sharedViewModel = sharedViewModel,
-                        prompt = prompt
-                    )
-                }.await()
-
-            }
-        }*/
     }
+
 
     private suspend fun getGptFilterResponse(
         context: Context,
@@ -317,15 +213,10 @@ class PlanTripViewModel @Inject constructor(
                     state = state.copy(
                         isLoading = false,
                         requestItinerary = state.requestItinerary.copy(
-                            places = sharedViewModel.requestState.requestItinerary.places.plus(
+                            places = state.requestItinerary.places.plus(
                                 places
                             )
                         )
-                    )
-
-
-                    var newState = state.requestItinerary.copy(
-                        places = sharedViewModel.requestState.requestItinerary.places.plus(places)
                     )
                     Log.d("onSendQuery", "onSend has now completed ")
 
@@ -342,6 +233,7 @@ class PlanTripViewModel @Inject constructor(
                 }
     }
 
+
     private suspend fun getGptResponse(context: Context, sharedViewModel: SharedViewModel) {
         val prompt = state.requestItinerary.toRequestString(context = context)
         val resultGpt =
@@ -351,7 +243,7 @@ class PlanTripViewModel @Inject constructor(
                     state = state.copy(
                         isLoading = false,
                     )
-                    sharedViewModel.onCompletion(it)
+                    sharedViewModel.onCompletionSingleDay(it)
                     Log.d("onSendQuery", "onSend has now completed ")
 
                     _uiEvent.send(UiEvent.Success)
@@ -367,8 +259,12 @@ class PlanTripViewModel @Inject constructor(
                 }
     }
 
+
     private fun getPredictions(address: String) {
+        println("Get predictions started")
         viewModelScope.launch {
+            println("Get predictions in scope")
+
             state.copy(
                 isLoading = true
             )
@@ -395,54 +291,202 @@ class PlanTripViewModel @Inject constructor(
         }
     }
 
-    fun onMultiDaySendQuery(context: Context, sharedViewModel: SharedViewModel) {
+    suspend fun onMultiDaySendQuery(context: Context, sharedViewModel: SharedViewModel) {
         state = state.copy(
             requestItinerary = sharedViewModel.requestState.requestItinerary
         )
-        sharedViewModel.plannedState.durationOfStay =
-            sharedViewModel.requestState.requestItinerary.days
         val days = sharedViewModel.requestState.requestItinerary.days.toInt()
-        for (i in 1..days) {
-            val prompt =
-                state.requestItinerary.toMultiDayStringRequest(context = context, currentDay = i)
-            viewModelScope.launch {
-                state = state.copy(
-                    isLoading = true
-                )
-                val result = async {
-                    gptRepository.getResponse(prompt)
-                        .onSuccess {
-                            it.dayPlan.planList.forEach { item ->
-                                state = state.copy(
-                                    requestItinerary = state.requestItinerary.copy(
-                                        exclusionList = state.requestItinerary.exclusionList.plus(
-                                            item.locationName
-                                        )
-                                    )
-                                )
-                            }
-                            if (i == 1) {
-                                sharedViewModel.onCompletion(it)
-                            } else {
-                                sharedViewModel.onAdd(it)
-                            }
-                            if (i == days) {
-                                state = state.copy(
-                                    isLoading = false,
-                                )
-                                _uiEvent.send(UiEvent.Success)
-                            }
-                        }
-                        .onFailure {
-                            state = state.copy(
-                                isLoading = false,
-                                error = it.message
-                            )
-                            _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
-                        }
-                }.await()
-            }
+
+        sharedViewModel._plannedItinerary.value = sharedViewModel._plannedItinerary.value.copy(
+            durationOfStay = days.toString()
+        )
+
+        state = state.copy(isLoading = true)
+        val query = getLocationString()
+        (1..days).forEach { i ->
+            sharedViewModel.addBlankDayPlan(i)
         }
+        (1..days).forEach { i ->
+            viewModelScope.async {
+                getAndFilterMultiDay(
+                    query = query,
+                    context = context,
+                    sharedViewModel = sharedViewModel,
+                    currentDay = i
+                )
+            }.await()
+        }
+
+        // Process the combined result from all days.
+    }
+
+     private suspend fun getAndFilterMultiDay(
+        query: String,
+        context: Context,
+        sharedViewModel: SharedViewModel,
+        currentDay: Int,
+    ) {
+        val query = getLocationString()
+        Log.d("MultiDay", "getAndFilter has started. Current day: $currentDay")
+
+        // Create a list to store async operations
+        val coroutines = mutableListOf<Deferred<Unit>>()
+
+
+
+        state.requestItinerary.interests.forEach {
+            Log.d("MultiDay", "Running through interests: $it")
+            coroutines.add(
+                viewModelScope.async {
+                    var temporaryList = listOf<PlaceInfo>()
+                    fun updateList(places: List<PlaceInfo>) {
+                        temporaryList = temporaryList.plus(places)
+                    }
+
+                    val places = async {
+                        temporaryList = getPlaces(
+                            query = query,
+                            type = it
+                        )
+                    }.await()
+                    var requestCopy = state.requestItinerary
+                    requestCopy = requestCopy.copy(
+                        places = temporaryList
+                    )
+                    val prompt =
+                        requestCopy.toMultiDayStringRequest(context, currentDay = currentDay)
+                    if (temporaryList.isNotEmpty()) {
+                        val gptResponse =
+                            withContext(Dispatchers.IO) {
+                                getGptFilterMultiResponse(
+                                    prompt = prompt,
+                                    context = context,
+                                    sharedViewModel = sharedViewModel,
+                                )
+                            }
+                    } else {
+                        state.requestItinerary.interests =
+                            state.requestItinerary.interests.plus("food")
+                    }
+                }
+            )
+        }
+
+
+        // Wait for all async operations to complete
+        coroutines.awaitAll()
+
+        // Call the getGptResponse function after all coroutines are completed
+        getGptMultiDayResponse(context, sharedViewModel, currentDay)
+    }
+
+    private suspend fun getGptMultiDayResponse(
+        context: Context,
+        sharedViewModel: SharedViewModel,
+        currentDay: Int,
+    ) {
+            val prompt = state.requestItinerary.toMultiDayStringRequest(
+                context = context,
+                currentDay = currentDay
+            )
+            val resultGpt =
+                gptRepository.getResponse(prompt)
+                    .onSuccess {
+                        Log.d("MultiDay", "on send is starting: $currentDay")
+                        Log.d("MultiDay", "Current planned itinerary: $it")
+                        var exclusionList = addToExclusion(it, sharedViewModel)
+                        Log.d(
+                            "onSendQuery",
+                            "Exclusion list has been updated: ${sharedViewModel.requestState.requestItinerary.exclusionList} "
+                        )
+                        Log.d("onSendQuery", "What it was updated with: $exclusionList ")
+
+                        Log.d("onSendQuery", "onSend has now completed ")
+                        it.dayPlan.plannedDay = currentDay
+                        if (currentDay == 1) {
+                            val singleDay = it.dayPlan
+                            it.multiDayPlan = it.multiDayPlan.plus(singleDay)
+                            sharedViewModel.onCompletionMultiDay(it)
+                            _uiEvent.send(UiEvent.Success)
+                        } else {
+                            sharedViewModel.onAddDayPlan(it.dayPlan)
+                        }
+                    }
+                    .onFailure {
+                        state = state.copy(
+                            isLoading = false,
+                            error = it.message
+                        )
+                        it.printStackTrace()
+                        it.message?.let { it1 -> Log.e("PlanTripVM", it1) }
+                        _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+                    }
+        if (state.requestItinerary.places.isNotEmpty()) {
+        }
+    }
+
+    private fun addToExclusion(
+        it: PlannedItinerary,
+        sharedViewModel: SharedViewModel,
+    ): List<String> {
+        var exclusionList = listOf<String>()
+        it.dayPlan.planList.forEach { singlePlan ->
+            exclusionList = exclusionList.plus(singlePlan.locationName)
+        }
+        state = state.copy(
+            isLoading = false,
+        )
+        sharedViewModel.requestState.requestItinerary =
+            sharedViewModel.requestState.requestItinerary.copy(
+                exclusionList = exclusionList
+            )
+        state.requestItinerary = state.requestItinerary.copy(
+            exclusionList = state.requestItinerary.exclusionList.plus(exclusionList)
+        )
+        return exclusionList
+    }
+
+    private suspend fun getGptFilterMultiResponse(
+        context: Context,
+        sharedViewModel: SharedViewModel,
+        prompt: String,
+    ) {
+        val resultGpt =
+            gptRepository.filterLocations(prompt)
+                .onSuccess { gptFilterPlace ->
+                    Log.d("onSendQuery", "on send is starting:$gptFilterPlace")
+                    val alreadyFilteredPlaces = state.requestItinerary.places.map { it.name }
+
+                    var places = listOf<PlaceInfo>()
+                    gptFilterPlace.places.forEach { place ->
+                        if (!alreadyFilteredPlaces.contains(place) && place.isNotBlank())
+                            places = places.plus(
+                                PlaceInfo(
+                                    name = place
+                                )
+                            )
+                    }
+                    state = state.copy(
+                        isLoading = false,
+                        requestItinerary = state.requestItinerary.copy(
+                            places = state.requestItinerary.places.plus(
+                                places
+                            )
+                        )
+                    )
+                    Log.d("onSendQuery", "onSend has now completed ")
+
+//                    _uiEvent.send(UiEvent.Success)
+                }
+                .onFailure {
+                    state = state.copy(
+                        isLoading = false,
+                        error = it.message
+                    )
+                    _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+                    it.printStackTrace()
+                    it.message?.let { it1 -> Log.e("PlanTripVM", it1) }
+                }
     }
 
     fun onLocationNext(sharedViewModel: SharedViewModel) {
@@ -475,3 +519,4 @@ class PlanTripViewModel @Inject constructor(
 
     }
 }
+

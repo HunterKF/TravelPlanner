@@ -1,5 +1,6 @@
 package com.jaegerapps.travelplanner.data.mappers
 
+import android.util.Log
 import com.google.gson.Gson
 import com.jaegerapps.travelplanner.data.models.gpt.GptFilterPlaceDto
 import com.jaegerapps.travelplanner.data.models.gpt.GptModelSendDto
@@ -8,13 +9,11 @@ import com.jaegerapps.travelplanner.data.models.itineraryDTO.ItineraryWrapperDto
 import com.jaegerapps.travelplanner.data.models.itineraryDTO.ResponseInfoDto
 import com.jaegerapps.travelplanner.domain.models.Itinerary.DayPlan
 import com.jaegerapps.travelplanner.domain.models.Itinerary.PlannedItinerary
-import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary
 import com.jaegerapps.travelplanner.domain.models.Itinerary.SinglePlan
 import com.jaegerapps.travelplanner.domain.models.gpt.GptFilterPlace
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import org.json.JSONObject
 
 fun ResponseDto.toResponseInfoDto(): ResponseInfoDto {
     val gson = Gson()
@@ -29,6 +28,7 @@ fun ResponseDto.toResponseInfoDto(): ResponseInfoDto {
 }
 
 fun ResponseInfoDto.toPlannedItinerary(): PlannedItinerary {
+    println("ResponseInfoDto: $this")
     val dtoInfo = this.itinerary.itinerary
     val dayPlanDto = this.itinerary.itinerary.day_plan
     val plansDto = this.itinerary.itinerary.day_plan.plans
@@ -48,9 +48,10 @@ fun ResponseInfoDto.toPlannedItinerary(): PlannedItinerary {
 
 
     val dayPlan = DayPlan(
-        currentDay = dayPlanDto.day,
+        plannedDay = dayPlanDto.day.toInt(),
         numberOfEvents = dayPlanDto.events,
         planList = plans,
+        loaded = true
     )
     println(dayPlan)
     return PlannedItinerary(
@@ -61,6 +62,7 @@ fun ResponseInfoDto.toPlannedItinerary(): PlannedItinerary {
 }
 
 fun ResponseDto.toGptFilterPlaceDto(): GptFilterPlaceDto {
+    Log.d("MultiDay", "toGptFilterPlaceDto: $this")
     val gson = Gson()
     val responseInfo = gson.fromJson(
         this.choices[0]?.message?.content?.replace("\\", ""),
@@ -75,24 +77,11 @@ fun GptFilterPlaceDto.toGptFilterPlace(): GptFilterPlace {
     )
 }
 
-fun RequestItinerary.toJson(): String? {
-    return Gson().toJson(this)
-}
 
-fun GptModelSendDto.toJson(): RequestBody {
+fun GptModelSendDto.toRequestBody(): RequestBody {
     val json = Gson().toJson(this)
     return json.toString().toRequestBody("application/json".toMediaTypeOrNull())
 }
 
-fun String.requestBody(): RequestBody {
-
-    val data = JSONObject()
-    data.put("model", "gpt-3.5-turbo")
-    data.put("messages", this)
-    data.put("max_tokens", 4000)
-    data.put("temperature", 1.0)
-
-    return data.toString().toRequestBody("application/json".toMediaTypeOrNull())
-}
 
 

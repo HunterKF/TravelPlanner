@@ -7,6 +7,6 @@ data class DayTripState (
     val isLoading: Boolean = false,
     val error: String? = null,
     val predictions: GooglePrediction = GooglePrediction(emptyList()),
-    val requestItinerary: RequestItinerary = RequestItinerary(),
+    var requestItinerary: RequestItinerary = RequestItinerary(),
 
     )

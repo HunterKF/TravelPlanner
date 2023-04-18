@@ -1,28 +1,35 @@
 package com.jaegerapps.travelplanner.presentation.plan_trip.my_trip
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.jaegerapps.travelplanner.core.ui.LocalSpacing
 import com.jaegerapps.travelplanner.domain.models.Itinerary.DayPlan
 import com.jaegerapps.travelplanner.domain.models.Itinerary.PlannedItinerary
 import com.jaegerapps.travelplanner.domain.models.Itinerary.SinglePlan
-import com.jaegerapps.travelplanner.domain.models.Itinerary.TransportationDetails
 import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
 import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components.PlanContainer
 import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components.ShowDay
 import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components.TripTopBar
+import com.jaegerapps.travelplanner.presentation.ui_components.ActionButton
 
 @Composable
 fun MyTripScreen(
     viewModel: SharedViewModel,
 ) {
     val spacing = LocalSpacing.current
-    val plan = viewModel._plannedItinerary.value
+    val state by viewModel.state.collectAsState()
+    val currentDayState by viewModel.currentDayState.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -30,9 +37,12 @@ fun MyTripScreen(
             .padding(spacing.spaceMedium)
 
     ) {
-        TripTopBar(title = plan.location)
+        TripTopBar(title = state.location)
         Spacer(modifier = Modifier.size(spacing.spaceMedium))
-        ShowDay(duration = plan.durationOfStay, currentDay = viewModel.currentDay)
+        ShowDay(
+            duration = state.durationOfStay,
+            currentDay = viewModel.currentDayNumber
+        ) { viewModel.setCurrentDay() }
         Spacer(modifier = Modifier.size(spacing.spaceMedium))
 
         LazyColumn(
@@ -40,20 +50,46 @@ fun MyTripScreen(
                 .fillMaxWidth()
         ) {
 
-            if (plan.multiTrip && plan.multiDayPlan.isNotEmpty()) {
-                val currentPlan =
-                    plan.multiDayPlan.first { it.currentDay.toInt() == viewModel.currentDay.value }
-                currentPlan.planList.forEach { item ->
-                    item {
-                        PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
+            if (state.multiTrip && state.multiDayPlan.isNotEmpty()) {
+                when (currentDayState.loaded) {
+                    true -> {
+                        currentDayState.planList.forEach { item ->
+                            item {
+                                PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
+                                Text("No Hello")
+
+                            }
+                        }
+                    }
+                    false -> {
+                        item {
+                            Box(
+                                Modifier
+                                    .height(300.dp)
+                                    .fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.fillMaxWidth(0.5f)
+                                )
+                            }
+                        }
                     }
                 }
+
             } else {
-                plan.dayPlan.planList.forEach { item ->
+                state.dayPlan.planList.forEach { item ->
                     item {
                         PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
+                        Text("Hello")
                     }
                 }
+            }
+            item {
+                ActionButton(text = "Click me", onClick = {
+                    Log.d("MultiDay", "$state")
+                })
+
             }
         }
     }
@@ -110,65 +146,64 @@ fun MyTripPreview() {
         )
     )
 
-    val transport = listOf(
-        TransportationDetails(
-            startingLocation = "Hunter's House",
-            startingAddress = "1234 Hemmingway",
-            endingLocation = "Krez's House",
-            endingAddress = "0987 Peter St.",
-            transportationType = "walking",
-            commuteTime = 30,
-            directions = "walk along Hemmingway north until you reach Peter St. Then turn right and you will arrive at Krez's House."
-        ),
-        TransportationDetails(
-            startingLocation = "Krez's House",
-            startingAddress = "0987 Peter St.",
-            endingLocation = "Beach Paradise",
-            endingAddress = "6785 Haeundae-ro",
-            transportationType = "walking",
-            commuteTime = 60,
-            directions = "walk along Hemmingway north until you reach Peter St. Then turn right and you will arrive at Krez's House."
-        )
-    )
-    viewModel._plannedItinerary.value = PlannedItinerary(
-        "Berlin, Germany",
-        "5",
-        "pop music and beer gardens",
-        dayPlan =
-        DayPlan(
-            currentDay = "1",
-            numberOfEvents = 1,
-            planList = day1Plan,
-        ),
-        multiTrip = true,
-        multiDayPlan = listOf(
-            DayPlan(
-                currentDay = "1",
-                numberOfEvents = 3,
-                planList = day1Plan,
-            ),
-            DayPlan(
-                currentDay = "2",
-                numberOfEvents = 3,
-                planList = day2Plan,
-            ),
-            DayPlan(
-                currentDay = "3",
-                numberOfEvents = 3,
-                planList = day1Plan,
-            ),
-            DayPlan(
-                currentDay = "4",
-                numberOfEvents = 3,
-                planList = day1Plan,
-            ),
-            DayPlan(
-                currentDay = "5",
-                numberOfEvents = 3,
-                planList = day1Plan,
-            ),
-        )
 
+    viewModel.onCompletionSingleDay(
+        PlannedItinerary(
+            "Berlin, Germany",
+            "3",
+            "pop music and beer gardens",
+            dayPlan =
+            DayPlan(
+                plannedDay = 1,
+                numberOfEvents = 1,
+                planList = day1Plan,
+                loaded = true
+            ),
+            multiTrip = true,
+            multiDayPlan = listOf(
+                DayPlan(
+                    plannedDay = 1,
+                    numberOfEvents = 1,
+                    planList = day1Plan,
+                    loaded = false
+                ),
+                DayPlan(
+                    plannedDay = 2,
+                    numberOfEvents = 3,
+                    planList = day1Plan,
+                    loaded = false
+                ),
+                DayPlan(
+                    plannedDay = 3,
+                    numberOfEvents = 3,
+                    planList = day2Plan,
+                    loaded = false
+                ),
+                DayPlan(
+                    plannedDay = 4,
+                    numberOfEvents = 3,
+                    planList = day1Plan,
+                    loaded = false
+                ),
+                DayPlan(
+                    plannedDay = 5,
+                    numberOfEvents = 3,
+                    planList = day1Plan,
+                    loaded = false
+                ),
+                DayPlan(
+                    plannedDay = 6,
+                    numberOfEvents = 3,
+                    planList = day1Plan,
+                    loaded = false
+                ),
+            )
+
+        )
     )
+
+
+
+
     MyTripScreen(viewModel = viewModel)
 }

@@ -130,7 +130,7 @@ class ResponseMapperKtTest {
         println(result)
         println(itineraryDto)
 
-        assertThat(result.dayPlan.currentDay).isEqualTo(itineraryDto.day_plan.day)
+        assertThat(result.dayPlan.plannedDay).isEqualTo(itineraryDto.day_plan.day)
     }
 
     @Test

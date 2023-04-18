@@ -1,9 +1,10 @@
 package com.jaegerapps.travelplanner.domain.models.Itinerary
 
 data class DayPlan(
-    val currentDay: String = "",
+    var plannedDay: Int = 0,
     val numberOfEvents: Int,
     val planList: List<SinglePlan>,
+    var loaded: Boolean
     ) {
     companion object {
         fun mapPlansAndTransport(plans: List<SinglePlan>, transport: List<TransportationDetails>): List<Any> {

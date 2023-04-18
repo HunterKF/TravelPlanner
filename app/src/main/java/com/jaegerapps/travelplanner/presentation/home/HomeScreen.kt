@@ -25,7 +25,7 @@ fun HomeScreen(onSingleTripNavigate: () -> Unit, onMultiTripNavigate: () -> Unit
             }
             Button(onClick = { onMultiTripNavigate() }) {
                 Text(
-                    text = "Plan single trip"
+                    text = "Plan multi trip"
                 )
             }
         }

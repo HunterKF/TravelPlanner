@@ -1,9 +1,7 @@
 package com.jaegerapps.travelplanner.presentation.plan_trip
 
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import com.example.core.util.UiEvent
 import com.jaegerapps.travelplanner.domain.models.Itinerary.DayPlan
@@ -11,27 +9,45 @@ import com.jaegerapps.travelplanner.domain.models.Itinerary.PlannedItinerary
 import com.jaegerapps.travelplanner.domain.models.Itinerary.SpecialRequest
 import com.jaegerapps.travelplanner.presentation.models.LocalLocation
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 
 class SharedViewModel : ViewModel() {
 
 
     //This state is used to display the MyTrip screen
-    private var plannedItinerary = mutableStateOf(
+    private var plannedItinerary = MutableStateFlow(
         PlannedItinerary(
             location = "",
-            durationOfStay = "",
+            durationOfStay = "0",
             interests = "",
             dayPlan =
             DayPlan(
-                currentDay = "",
+                plannedDay = 1,
                 numberOfEvents = 1,
                 planList = listOf(),
+                loaded = false
             )
 
         )
     )
     var _plannedItinerary = plannedItinerary
+
+    val state = plannedItinerary.asStateFlow()
+
+    private val currentDay = MutableStateFlow(
+        DayPlan(
+            plannedDay = 1,
+            numberOfEvents = 1,
+            planList = listOf(),
+            loaded = false
+        )
+    )
+
+    var _currentDay = currentDay
+
+    val currentDayState = currentDay.asStateFlow()
 
     //this is what we change to make the request
     var requestState by mutableStateOf(DayTripState())
@@ -42,20 +58,21 @@ class SharedViewModel : ViewModel() {
     var plannedState by mutableStateOf(
         PlannedItinerary(
             location = "",
-            durationOfStay = "",
+            durationOfStay = "0",
             interests = "",
             dayPlan =
             DayPlan(
-                currentDay = "",
+                plannedDay = 1,
                 numberOfEvents = 1,
                 planList = listOf(),
+                loaded = false
             )
 
         )
     )
         private set
 
-    val currentDay = mutableStateOf(1)
+    val currentDayNumber = mutableStateOf(1)
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
@@ -95,16 +112,51 @@ class SharedViewModel : ViewModel() {
                 days = value
             )
         )
+        _plannedItinerary.value = _plannedItinerary.value.copy(
+            durationOfStay = value
+        )
     }
 
 
-    fun onCompletion(incomingItinerary: PlannedItinerary) {
+    fun onCompletionSingleDay(incomingItinerary: PlannedItinerary) {
+        println("on completion: $incomingItinerary")
         _plannedItinerary.value = incomingItinerary
         Log.d("MultiDay", "onCompletion has been tripped: ${_plannedItinerary.value.multiDayPlan}")
     }
-    fun onFilterCompletion(incomingItinerary: PlannedItinerary) {
-        _plannedItinerary.value = incomingItinerary
+
+    fun onCompletionMultiDay(incomingItinerary: PlannedItinerary) {
+        _plannedItinerary.value = _plannedItinerary.value.copy(
+            incomingItinerary.location,
+            interests = incomingItinerary.interests,
+            multiTrip = true,
+            multiDayPlan = _plannedItinerary.value.multiDayPlan.map { dayPlan ->
+                if (dayPlan.plannedDay == incomingItinerary.dayPlan.plannedDay) {
+                    dayPlan.copy(
+                        plannedDay = incomingItinerary.dayPlan.plannedDay,
+                        numberOfEvents = incomingItinerary.dayPlan.numberOfEvents,
+                        planList = incomingItinerary.dayPlan.planList,
+                        loaded = true
+                    )
+                } else {
+                    dayPlan
+                }
+            }
+                .sortedByDescending { it.plannedDay }
+                .reversed(),
+        )
+        setCurrentDay()
         Log.d("MultiDay", "onCompletion has been tripped: ${_plannedItinerary.value.multiDayPlan}")
+    }
+
+    fun onAddDayPlan(dayPlan: DayPlan) {
+        Log.d("MultiDay", "onAdd has been tripped: ${dayPlan}")
+        dayPlan.loaded = true
+        _plannedItinerary.value = _plannedItinerary.value.copy(
+            multiDayPlan = _plannedItinerary.value.multiDayPlan.map {
+                if (it.plannedDay == dayPlan.plannedDay) dayPlan else it
+            }
+        )
+        Log.d("MultiDay", "onAdd is completing: ${_plannedItinerary.value.multiDayPlan}")
     }
 
     fun onInterestAdd(value: String) {
@@ -154,11 +206,42 @@ class SharedViewModel : ViewModel() {
         )
     }
 
+    fun addBlankDayPlan(currentDay: Int) {
+        _plannedItinerary.value.multiDayPlan = _plannedItinerary.value.multiDayPlan
+            .plus(
+                DayPlan(
+                    plannedDay = currentDay,
+                    numberOfEvents = 0,
+                    planList = listOf(),
+                    loaded = false
+                )
+            )
+        Log.d("MultiDay", "Blank days have been added completed. ${_plannedItinerary.value.multiDayPlan}")
+    }
+
     fun onStateRequestUpdate(specialRequests: List<SpecialRequest>) {
         requestState = requestState.copy(
             requestItinerary = requestState.requestItinerary.copy(
                 specialRequests = specialRequests
             )
         )
+    }
+
+
+    fun setCurrentDay() {
+        Log.d("MultiDay", "Current state value: ${state.value}")
+        Log.d("MultiDay", "Current _plannedStated value: ${_plannedItinerary.value}")
+        Log.d("MultiDay", "Current plannedStated value: ${plannedItinerary.value}")
+        val newDay =
+            state.value.multiDayPlan.firstOrNull { it.plannedDay == currentDayNumber.value }
+        if (newDay != null) {
+            Log.d("MultiDay", "set current day: $newDay")
+            _currentDay.value = _currentDay.value.copy(
+                newDay.plannedDay,
+                newDay.numberOfEvents,
+                newDay.planList,
+                newDay.loaded
+            )
+        }
     }
 }

@@ -19,7 +19,8 @@ import com.jaegerapps.travelplanner.core.ui.LocalSpacing
 fun ShowDay(
     modifier: Modifier = Modifier,
     duration: String,
-    currentDay: MutableState<Int>
+    currentDay: MutableState<Int>,
+    onClick: () -> Unit
 ) {
     val spacing = LocalSpacing.current
     val days = duration.toInt()
@@ -34,6 +35,7 @@ fun ShowDay(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier.clickable {
                         currentDay.value = i
+                        onClick()
                     }
                 ) {
                     Text(

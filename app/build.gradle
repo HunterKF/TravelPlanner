@@ -52,6 +52,9 @@ android {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
+    testOptions {
+        unitTests.includeAndroidResources = true
+    }
 }
 
 dependencies {
@@ -62,6 +65,7 @@ dependencies {
     implementation "androidx.compose.ui:ui:$compose_ui_version"
     implementation "androidx.compose.ui:ui-tooling-preview:$compose_ui_version"
     implementation 'androidx.compose.material:material:1.2.0'
+    implementation 'androidx.test:monitor:1.6.1'
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_ui_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_ui_version"
 
@@ -109,4 +113,9 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
 
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    testImplementation 'androidx.test.ext:junit-ktx:1.1.2'
+    testImplementation "androidx.arch.core:core-testing:2.1.0"
+    testImplementation 'org.robolectric:robolectric:4.4'
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4"
 }

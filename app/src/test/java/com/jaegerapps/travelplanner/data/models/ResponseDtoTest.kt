@@ -7,7 +7,7 @@ import com.jaegerapps.travelplanner.data.remote.dto.ChoicesDto
 import com.jaegerapps.travelplanner.data.remote.dto.MessageDto
 import com.jaegerapps.travelplanner.data.remote.dto.ResponseDto
 import com.jaegerapps.travelplanner.data.remote.invalidResponse
-import com.jaegerapps.travelplanner.data.remote.validResponse
+import com.jaegerapps.travelplanner.data.remote.valid_gpt_itinerary_response
 import org.junit.Before
 import org.junit.Test
 
@@ -38,7 +38,7 @@ class ResponseDtoTest {
 
     @Test
     fun `Return valid responseDto from JSON`() {
-        val json= gson.fromJson(validResponse, ResponseDto::class.java)
+        val json= gson.fromJson(valid_gpt_itinerary_response, ResponseDto::class.java)
         println(json)
         assertThat(json.id).isEqualTo(responseDto.id)
         if (json.choices.isNotEmpty() && responseDto.choices.isNotEmpty()) {

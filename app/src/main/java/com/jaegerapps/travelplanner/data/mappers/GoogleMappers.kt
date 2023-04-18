@@ -6,6 +6,8 @@ import com.jaegerapps.travelplanner.data.models.google_places.PlaceResultDto
 import com.jaegerapps.travelplanner.domain.models.google.*
 
 fun PlaceResultDto.toPlaceWrapper(): PlaceWrapper {
+    println("PlaceResultDto: $this")
+
     var newPlaces = listOf<PlaceInfo>()
     println(this.places)
     this.places.forEach {

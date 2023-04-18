@@ -2,7 +2,6 @@ package com.jaegerapps.travelplanner.data
 
 import android.util.Log
 import com.jaegerapps.travelplanner.data.mappers.*
-import com.jaegerapps.travelplanner.data.models.gpt.GptFilterPlaceDto
 import com.jaegerapps.travelplanner.data.models.gpt.GptMessageSend
 import com.jaegerapps.travelplanner.data.models.gpt.GptModelSendDto
 import com.jaegerapps.travelplanner.data.remote.GptApi
@@ -19,24 +18,33 @@ class GptRepositoryImpl @Inject constructor(
     override suspend fun getResponse(prompt: String): Result<PlannedItinerary> {
         Log.d("getResponse", "Get response is starting. ")
         return try {
-            Result.success(
-                GptModelSendDto(
-                    messages =
-                    GptMessageSend.baseRequestList.plus(
-                        GptMessageSend(
-                            role = "user",
-                            content = prompt
-                        ),
-                    )
-                ).toJson()
-                    .let {
-                        Log.d("getResponse", "Get response is now in let. ")
-                        api.getItineraryResponse(it)
-                            .toResponseInfoDto()
-                            .toPlannedItinerary()
+            val requestBody = GptModelSendDto(
+                messages =
+                GptMessageSend.baseRequestList.plus(
+                    GptMessageSend(
+                        role = "user",
+                        content = prompt
+                    ),
+                )
+            ).toRequestBody()
 
-                    }
-            )
+            val response = api.getItineraryResponse(requestBody)
+
+            val assistantMessage = response.choices[0]?.message?.content
+
+            if (assistantMessage != null) {
+                if (assistantMessage.contains("Sorry") || assistantMessage.contains("error") || assistantMessage.contains("missing")) {
+                    // Handle the error appropriately
+                    Result.failure(Exception("Error detected: $assistantMessage"))
+                } else {
+                    Result.success(
+                        response.toResponseInfoDto().toPlannedItinerary()
+                    )
+                }
+            } else {
+                Result.failure(Exception("Error detected: $response"))
+
+            }
 
         } catch (e: Exception) {
             e.printStackTrace()
@@ -57,7 +65,7 @@ class GptRepositoryImpl @Inject constructor(
                             content = prompt
                         ),
                     )
-                ).toJson()
+                ).toRequestBody()
                     .let {
                         Log.d("getResponse", "Get response is now in let. ")
                         api.filterList(it)
@@ -76,7 +84,7 @@ class GptRepositoryImpl @Inject constructor(
     override suspend fun sendSystemSpec(): Result<ResponseInfoDto> {
         return try {
             Result.success(
-                GptModelSendDto(messages = GptMessageSend.baseRequestList).toJson()
+                GptModelSendDto(messages = GptMessageSend.baseRequestList).toRequestBody()
                     .let { api.sendSystemSpec(it).toResponseInfoDto() }
             )
         } catch (e: Exception) {

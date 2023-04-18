@@ -1,7 +1,9 @@
 package com.jaegerapps.travelplanner.presentation.models
 
+import android.content.Context
 import com.jaegerapps.travelplanner.domain.models.Itinerary.MealRequest
 import com.jaegerapps.travelplanner.domain.models.Itinerary.SpecialRequest
+import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
 
 sealed class PlanTripEvent {
     data class OnLocationChange(val query: String): PlanTripEvent()
@@ -18,5 +20,7 @@ sealed class PlanTripEvent {
     data class OnMealTypeCuisineChange(val query: String): PlanTripEvent()
     data class OnMealTypeFoodRequestChange(val query: String): PlanTripEvent()
     object OnSearch: PlanTripEvent()
+    class OnMultiSend(val sharedViewModel: SharedViewModel) : PlanTripEvent()
+    class OnSingleSend( val sharedViewModel: SharedViewModel) : PlanTripEvent()
     object OnClear: PlanTripEvent()
 }

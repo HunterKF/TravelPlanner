@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -20,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.core.util.UiEvent
 import com.jaegerapps.travelplanner.R
 import com.jaegerapps.travelplanner.core.ui.LocalSpacing
+import com.jaegerapps.travelplanner.presentation.models.PlanTripEvent
 import com.jaegerapps.travelplanner.presentation.plan_trip.PlanTripViewModel
 import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
 import com.jaegerapps.travelplanner.presentation.plan_trip.about_trip.InterestsViewModel
@@ -46,89 +48,103 @@ fun InterestsScreen(
         }
     }
     val state = sharedViewModel.requestState
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(spacing.spaceLarge)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = stringResource(id = R.string.what_are_your_interests),
-                style = MaterialTheme.typography.h3
+
+    when (state.isLoading) {
+        true -> {
+            CircularProgressIndicator(
+                modifier = Modifier.fillMaxSize()
             )
-            Spacer(modifier = Modifier.height(spacing.spaceMedium))
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                verticalArrangement = Arrangement.spacedBy(spacing.spaceSmall),
-                horizontalArrangement = Arrangement.spacedBy(spacing.spaceSmall)
-            ) {
-                items(Interest.interests) {
-                    var isSelected by remember {
-                        mutableStateOf(
-                            false
-                        )
-                    }
-
-                    SelectableButton(
-                        modifier = Modifier.fillMaxHeight(),
-                        text = it.value,
-                        isSelected = isSelected,
-                        color = MaterialTheme.colors.primary,
-                        selectedTextColor = Color.White,
-                        onClick = {
-                            if (sharedViewModel.requestState.requestItinerary.interests.size < 3 && !isSelected) {
-                                isSelected = if (!isSelected) {
-                                    sharedViewModel.onInterestAdd(it.value)
-                                    true
-                                } else {
-                                    sharedViewModel.onInterestRemove(it.value)
-                                    false
-                                }
-                            } else if (isSelected) {
-                                isSelected = false
-                                sharedViewModel.onInterestRemove(it.value)
-
-                            } else {
-                                Toast.makeText(
-                                    context,
-                                    "Can only select 3 interests.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        })
-                }
-            }
-            /*StringTextField(value = state.requestItinerary.interests, onValueChange = {
-                sharedViewModel.onInterestsChange(it)
-            })*/
-
         }
+        false -> {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(spacing.spaceLarge)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.what_are_your_interests),
+                        style = MaterialTheme.typography.h3
+                    )
+                    Spacer(modifier = Modifier.height(spacing.spaceMedium))
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        verticalArrangement = Arrangement.spacedBy(spacing.spaceSmall),
+                        horizontalArrangement = Arrangement.spacedBy(spacing.spaceSmall)
+                    ) {
+                        items(Interest.interests) {
+                            var isSelected by remember {
+                                mutableStateOf(
+                                    false
+                                )
+                            }
 
-        ActionButton(
-            text = stringResource(id = R.string.next),
-            isEnabled = true,
-            onClick = {
-//                sharedViewModel.onInterestsChange(state.requestItinerary.interests)
-                if (state.requestItinerary.multiDay) {
-                    planTripViewModel.onMultiDaySendQuery(
-                        context = context,
-                        sharedViewModel = sharedViewModel
-                    )
-                } else {
-                    planTripViewModel.onSendQuery(
-                        context = context,
-                        sharedViewModel = sharedViewModel
-                    )
+                            SelectableButton(
+                                modifier = Modifier.fillMaxHeight(),
+                                text = it.value,
+                                isSelected = isSelected,
+                                color = MaterialTheme.colors.primary,
+                                selectedTextColor = Color.White,
+                                onClick = {
+                                    if (sharedViewModel.requestState.requestItinerary.interests.size < 3 && !isSelected) {
+                                        isSelected = if (!isSelected) {
+                                            sharedViewModel.onInterestAdd(it.value)
+                                            true
+                                        } else {
+                                            sharedViewModel.onInterestRemove(it.value)
+                                            false
+                                        }
+                                    } else if (isSelected) {
+                                        isSelected = false
+                                        sharedViewModel.onInterestRemove(it.value)
+
+                                    } else {
+                                        Toast.makeText(
+                                            context,
+                                            "Can only select 3 interests.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    }
+                                })
+                        }
+                    }
+                    /*StringTextField(value = state.requestItinerary.interests, onValueChange = {
+                        sharedViewModel.onInterestsChange(it)
+                    })*/
+
                 }
-            },
-            modifier = Modifier.align(Alignment.BottomEnd)
-        )
+
+                ActionButton(
+                    text = stringResource(id = R.string.next),
+                    isEnabled = true,
+                    onClick = {
+//                sharedViewModel.onInterestsChange(state.requestItinerary.interests)
+                        if (state.requestItinerary.multiDay) {
+                            planTripViewModel.onEvent(
+                                PlanTripEvent.OnMultiSend(sharedViewModel = sharedViewModel),
+                                context = context
+
+                            )
+                        } else {
+                            planTripViewModel.onEvent(
+                                PlanTripEvent.OnSingleSend(
+                                    sharedViewModel
+                                ),
+                                context = context
+                            )
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                )
+            }
+        }
     }
+
 }
 
 @Preview

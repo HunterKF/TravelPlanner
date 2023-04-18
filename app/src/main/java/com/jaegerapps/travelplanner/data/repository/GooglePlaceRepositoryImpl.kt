@@ -14,6 +14,7 @@ class GooglePlaceRepositoryImpl @Inject constructor(
     private val api: GooglePlaceApi
 ): GooglePlaceRepository {
     override suspend fun getPlaces(query: String, type: String?): Result<PlaceWrapper> {
+
         return try {
             Result.success(
                api.getPlaces(location = query, type = type ?: "tourist attractions")

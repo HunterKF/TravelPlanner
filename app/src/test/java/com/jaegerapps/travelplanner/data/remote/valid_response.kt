@@ -1,6 +1,6 @@
 package com.jaegerapps.travelplanner.data.remote
 
-val validResponse = """
+val valid_gpt_itinerary_response = """
     {
       "id": "chatcmpl-6ug9wkFQRYOre0jjPWSmpXeTkafny",
       "object": "chat.completion",
@@ -15,7 +15,7 @@ val validResponse = """
         {
           "message": {
             "role": "assistant",
-            "content": "{\"itinerary\":{\"location\":\"Tokyo, Japan\",\"length\":1,\"interests\":\"Local food and shopping\",\"day_plan\":{\"day\":1,\"events\":2,\"plans\":[{\"address\":\"5 Chome-2-1 Tsukiji, Chuo City, Tokyo 104-0045, Japan\",\"name\":\"Tsukiji Outer Market\",\"description\":\"A street market that offers a wide range of fresh seafood, fruits, and vegetables, as well as unique local snacks, ceramics, and cooking utensils.\",\"keywords\":\"local food,shopping,market\",\"type\":\"sightseeing\"},{\"address\":\"1 Chome-8-3 Jingumae, Shibuya City, Tokyo 150-0001, Japan\",\"name\":\"Omotesando\",\"description\":\"A shopping district located in Shibuya that offers a variety of high-end fashion brands, cafes, and restaurants.\",\"keywords\":\"shopping,food,fashion brands,architecture\",\"type\":\"sightseeing\"}],\"transportation\":[]}}}"
+            "content":"{\"itinerary\":{\"location\":\"Seoul, South Korea\",\"length\":1,\"interests\":\"Tourist Attraction, Parks, Night Life\",\"day_plan\":{\"day\":1,\"events\":3,\"plans\":[{\"name\":\"Namsan Seoul Tower\",\"description\":\"a well-known tourist attraction with a panoramic view of Seoul from an observation deck at the top of the tower.\",\"keywords\":\"tourist attraction, observation deck\",\"type\":\"sightseeing\"},{\"name\":\"Seoul Forest Park\",\"description\":\"a large park with a variety of walking paths, bike rentals, nature exhibits, and playgrounds.\",\"keywords\":\"park, nature, relaxation\",\"type\":\"sightseeing\"},{\"name\":\"Thursday Party\",\"description\":\"a popular night club with a fun atmosphere and great music.\",\"keywords\":\"nightlife, party, club\",\"type\":\"nightlife\"}]}}}"
           },
           "finish_reason": "stop",
           "index": 0
