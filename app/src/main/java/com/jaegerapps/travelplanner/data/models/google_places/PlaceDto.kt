@@ -9,4 +9,11 @@ data class PlaceDto(
     val address: String,
     @field:Json(name = "types")
     val types: List<String>,
+    @field:Json(name = "photos")
+    val photos: Array<PhotoReferenceDto>?
+)
+
+data class PhotoReferenceDto(
+    @field:Json(name = "photo_reference")
+    val photoReference: String
 )

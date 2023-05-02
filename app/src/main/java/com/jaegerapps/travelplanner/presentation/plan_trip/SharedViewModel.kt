@@ -119,9 +119,7 @@ class SharedViewModel : ViewModel() {
 
 
     fun onCompletionSingleDay(incomingItinerary: PlannedItinerary) {
-        println("on completion: $incomingItinerary")
         _plannedItinerary.value = incomingItinerary
-        Log.d("MultiDay", "onCompletion has been tripped: ${_plannedItinerary.value.multiDayPlan}")
     }
 
     fun onCompletionMultiDay(incomingItinerary: PlannedItinerary) {

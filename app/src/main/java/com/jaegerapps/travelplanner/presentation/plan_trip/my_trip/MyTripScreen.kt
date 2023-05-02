@@ -101,14 +101,17 @@ fun MyTripPreview() {
     val viewModel = SharedViewModel()
     val day1Plan = listOf(
         SinglePlan(
-            "1234 Hemmingway",
-            "Hunter's House",
-            "Good place",
-            "dank",
-            "relaxation"
+            address = "1234 Hemmingway",
+            photoRef = null,
+            locationName = "Hunter's House",
+            description = "Good place",
+            keywords = "dank",
+            type = "relaxation",
+
         ),
         SinglePlan(
             address = "0987 Peter St.",
+            photoRef = null,
             locationName = "Krez's House",
             description = "Yummy place",
             keywords = "spicy",
@@ -116,6 +119,7 @@ fun MyTripPreview() {
         ),
         SinglePlan(
             address = "6785 Haeundae-ro",
+            photoRef = null,
             locationName = "Beach Paradise",
             description = "Beach side",
             keywords = "beach",
@@ -125,6 +129,7 @@ fun MyTripPreview() {
     val day2Plan = listOf(
         SinglePlan(
             "12313",
+            photoRef = null,
             "Haeundae",
             "Good place",
             "dank",
@@ -132,6 +137,7 @@ fun MyTripPreview() {
         ),
         SinglePlan(
             address = "123123123.",
+            photoRef = null,
             locationName = "Seoul",
             description = "Yummy place",
             keywords = "spicy",
@@ -139,6 +145,7 @@ fun MyTripPreview() {
         ),
         SinglePlan(
             address = "asdasdaso",
+            photoRef = null,
             locationName = "JANGSANG",
             description = "Beach side",
             keywords = "beach",

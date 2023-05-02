@@ -7,5 +7,5 @@ data class PlaceWrapper(
 
 data class PlaceInfo(
     val name: String,
-//    val type: List<String>
+    val photoReference: String?
 )

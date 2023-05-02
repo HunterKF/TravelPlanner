@@ -9,12 +9,12 @@ fun PlaceResultDto.toPlaceWrapper(): PlaceWrapper {
     println("PlaceResultDto: $this")
 
     var newPlaces = listOf<PlaceInfo>()
-    println(this.places)
     this.places.forEach {
+
         newPlaces = newPlaces.plus(
             PlaceInfo(
                 name = it.name,
-//                type = it.types
+                photoReference = it.photos?.get(0)?.photoReference
             )
         )
     }

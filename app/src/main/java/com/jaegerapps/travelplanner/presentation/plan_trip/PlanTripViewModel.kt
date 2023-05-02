@@ -9,12 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.core.util.UiEvent
 import com.example.core.util.UiText
+import com.jaegerapps.travelplanner.BuildConfig
 import com.jaegerapps.travelplanner.domain.mappers.latLngToLocationString
 import com.jaegerapps.travelplanner.domain.models.Itinerary.PlannedItinerary
 import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary.Companion.toFilterString
 import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary.Companion.toMultiDayStringRequest
 import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary.Companion.toRequestString
 import com.jaegerapps.travelplanner.domain.models.google.PlaceInfo
+import com.jaegerapps.travelplanner.domain.models.google.PlaceWrapper
 import com.jaegerapps.travelplanner.domain.repositories.GooglePlaceRepository
 import com.jaegerapps.travelplanner.domain.repositories.GptRepository
 import com.jaegerapps.travelplanner.presentation.models.PlanTripEvent
@@ -35,32 +37,34 @@ class PlanTripViewModel @Inject constructor(
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
+    private var allSearchedPlaces = listOf<PlaceInfo>()
 
-     fun onEvent(event: PlanTripEvent, context: Context? = null) {
-         when (event) {
 
-             is PlanTripEvent.OnSearch -> {
-                 if (context != null) {
- //                    onSendQuery(context = context, sharedViewModel = sharedViewModel)
-                 }
-             }
-             is PlanTripEvent.OnMultiSend -> {
-                 viewModelScope.launch {
-                     if (context != null) {
-                         onMultiDaySendQuery(context, sharedViewModel = event.sharedViewModel)
-                     }
-                 }
-             }
-             is PlanTripEvent.OnSingleSend -> {
-                 if (context != null) {
-                     onSendQuery(context, event.sharedViewModel)
-                 }
-             }
-             else -> {
+    fun onEvent(event: PlanTripEvent, context: Context? = null) {
+        when (event) {
 
-             }
-         }
-     }
+            is PlanTripEvent.OnSearch -> {
+                if (context != null) {
+                    //                    onSendQuery(context = context, sharedViewModel = sharedViewModel)
+                }
+            }
+            is PlanTripEvent.OnMultiSend -> {
+                viewModelScope.launch {
+                    if (context != null) {
+                        onMultiDaySendQuery(context, sharedViewModel = event.sharedViewModel)
+                    }
+                }
+            }
+            is PlanTripEvent.OnSingleSend -> {
+                if (context != null) {
+                    onSendQuery(context, event.sharedViewModel)
+                }
+            }
+            else -> {
+
+            }
+        }
+    }
 
 
     fun onSendQuery(context: Context, sharedViewModel: SharedViewModel) {
@@ -105,6 +109,7 @@ class PlanTripViewModel @Inject constructor(
                 .onSuccess {
                     nextPage = it.nextPage ?: ""
                     placeList = placeList.plus(it.places)
+                    updateAllSearchedPlaces(it)
                 }
                 .onFailure {
                     state = state.copy(
@@ -121,6 +126,14 @@ class PlanTripViewModel @Inject constructor(
         return placeList
     }
 
+    private fun updateAllSearchedPlaces(it: PlaceWrapper) {
+        val filteredList = it.places.filter { place -> place !in allSearchedPlaces }
+        Log.d("UpdateAll", "AllSearchedPlaces: $filteredList")
+
+        allSearchedPlaces = allSearchedPlaces.plus(filteredList)
+        Log.d("UpdateAll", "AllSearchedPlaces: ${allSearchedPlaces.size}")
+    }
+
     private suspend fun getNextPageAndUpdatePlaces(
         query: String,
         nextPage: String,
@@ -130,6 +143,7 @@ class PlanTripViewModel @Inject constructor(
             placeRepository.getNextPage(query, pageToken = nextPage)
                 .onSuccess {
                     placeList = placeList.plus(it.places)
+                    updateAllSearchedPlaces(it)
                 }
                 .onFailure {
                     state = state.copy(
@@ -200,13 +214,15 @@ class PlanTripViewModel @Inject constructor(
     ) {
         val resultGpt =
             gptRepository.filterLocations(prompt)
-                .onSuccess {
-                    Log.d("onSendQuery", "on send is starting:$it")
+                .onSuccess { gptFilterPlace ->
+                    Log.d("onSendQuery", "on send is starting:$gptFilterPlace")
+                    Log.d("onSendQuery", "on send is starting:$allSearchedPlaces")
                     var places = listOf<PlaceInfo>()
-                    it.places.forEach { place ->
+                    gptFilterPlace.places.forEach { place ->
                         places = places.plus(
                             PlaceInfo(
-                                name = place
+                                name = place,
+                                photoReference = allSearchedPlaces.firstOrNull() { it.name == place }?.photoReference
                             )
                         )
                     }
@@ -243,7 +259,8 @@ class PlanTripViewModel @Inject constructor(
                     state = state.copy(
                         isLoading = false,
                     )
-                    sharedViewModel.onCompletionSingleDay(it)
+                    val updatedPlan = mapPhotoRefToLocation(it)
+                    sharedViewModel.onCompletionSingleDay(updatedPlan)
                     Log.d("onSendQuery", "onSend has now completed ")
 
                     _uiEvent.send(UiEvent.Success)
@@ -257,6 +274,26 @@ class PlanTripViewModel @Inject constructor(
                     it.message?.let { it1 -> Log.e("PlanTripVM", it1) }
                     _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
                 }
+    }
+
+    private fun mapPhotoRefToLocation(plannedItinerary: PlannedItinerary): PlannedItinerary {
+        plannedItinerary.dayPlan.planList.forEach { plan ->
+            plan.photoRef =
+                allSearchedPlaces.firstOrNull() { it.name == plan.locationName }?.photoReference
+        }
+        return addUriToPhotoRef(plannedItinerary)
+
+    }
+
+    private fun addUriToPhotoRef(plannedItinerary: PlannedItinerary): PlannedItinerary {
+        plannedItinerary.dayPlan.planList.forEach { plan ->
+            if (!plan.photoRef.isNullOrBlank()) {
+                val uri = "https://maps.googleapis.com/maps/api/place/photo?key=${BuildConfig.PLACES_API_KEY}&maxwidth=300&photoreference=${plan.photoRef}"
+
+                plan.photoRef = uri
+            }
+        }
+        return plannedItinerary
     }
 
 
@@ -320,7 +357,7 @@ class PlanTripViewModel @Inject constructor(
         // Process the combined result from all days.
     }
 
-     private suspend fun getAndFilterMultiDay(
+    private suspend fun getAndFilterMultiDay(
         query: String,
         context: Context,
         sharedViewModel: SharedViewModel,
@@ -385,42 +422,42 @@ class PlanTripViewModel @Inject constructor(
         sharedViewModel: SharedViewModel,
         currentDay: Int,
     ) {
-            val prompt = state.requestItinerary.toMultiDayStringRequest(
-                context = context,
-                currentDay = currentDay
-            )
-            val resultGpt =
-                gptRepository.getResponse(prompt)
-                    .onSuccess {
-                        Log.d("MultiDay", "on send is starting: $currentDay")
-                        Log.d("MultiDay", "Current planned itinerary: $it")
-                        var exclusionList = addToExclusion(it, sharedViewModel)
-                        Log.d(
-                            "onSendQuery",
-                            "Exclusion list has been updated: ${sharedViewModel.requestState.requestItinerary.exclusionList} "
-                        )
-                        Log.d("onSendQuery", "What it was updated with: $exclusionList ")
+        val prompt = state.requestItinerary.toMultiDayStringRequest(
+            context = context,
+            currentDay = currentDay
+        )
+        val resultGpt =
+            gptRepository.getResponse(prompt)
+                .onSuccess {
+                    Log.d("MultiDay", "on send is starting: $currentDay")
+                    Log.d("MultiDay", "Current planned itinerary: $it")
+                    var exclusionList = addToExclusion(it, sharedViewModel)
+                    Log.d(
+                        "onSendQuery",
+                        "Exclusion list has been updated: ${sharedViewModel.requestState.requestItinerary.exclusionList} "
+                    )
+                    Log.d("onSendQuery", "What it was updated with: $exclusionList ")
 
-                        Log.d("onSendQuery", "onSend has now completed ")
-                        it.dayPlan.plannedDay = currentDay
-                        if (currentDay == 1) {
-                            val singleDay = it.dayPlan
-                            it.multiDayPlan = it.multiDayPlan.plus(singleDay)
-                            sharedViewModel.onCompletionMultiDay(it)
-                            _uiEvent.send(UiEvent.Success)
-                        } else {
-                            sharedViewModel.onAddDayPlan(it.dayPlan)
-                        }
+                    Log.d("onSendQuery", "onSend has now completed ")
+                    it.dayPlan.plannedDay = currentDay
+                    if (currentDay == 1) {
+                        val singleDay = it.dayPlan
+                        it.multiDayPlan = it.multiDayPlan.plus(singleDay)
+                        sharedViewModel.onCompletionMultiDay(it)
+                        _uiEvent.send(UiEvent.Success)
+                    } else {
+                        sharedViewModel.onAddDayPlan(it.dayPlan)
                     }
-                    .onFailure {
-                        state = state.copy(
-                            isLoading = false,
-                            error = it.message
-                        )
-                        it.printStackTrace()
-                        it.message?.let { it1 -> Log.e("PlanTripVM", it1) }
-                        _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
-                    }
+                }
+                .onFailure {
+                    state = state.copy(
+                        isLoading = false,
+                        error = it.message
+                    )
+                    it.printStackTrace()
+                    it.message?.let { it1 -> Log.e("PlanTripVM", it1) }
+                    _uiEvent.send(UiEvent.ShowSnackbar(UiText.DynamicString("Failed.")))
+                }
         if (state.requestItinerary.places.isNotEmpty()) {
         }
     }
@@ -462,7 +499,9 @@ class PlanTripViewModel @Inject constructor(
                         if (!alreadyFilteredPlaces.contains(place) && place.isNotBlank())
                             places = places.plus(
                                 PlaceInfo(
-                                    name = place
+                                    name = place,
+                                    photoReference = allSearchedPlaces.first { it.name == place }.photoReference
+                                        ?: ""
                                 )
                             )
                     }
@@ -518,5 +557,6 @@ class PlanTripViewModel @Inject constructor(
         }
 
     }
+
 }
 

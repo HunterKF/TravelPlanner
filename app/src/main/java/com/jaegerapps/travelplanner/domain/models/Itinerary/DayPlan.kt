@@ -3,7 +3,7 @@ package com.jaegerapps.travelplanner.domain.models.Itinerary
 data class DayPlan(
     var plannedDay: Int = 0,
     val numberOfEvents: Int,
-    val planList: List<SinglePlan>,
+    var planList: List<SinglePlan>,
     var loaded: Boolean
     ) {
     companion object {

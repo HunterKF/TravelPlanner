@@ -40,7 +40,8 @@ fun ResponseInfoDto.toPlannedItinerary(): PlannedItinerary {
                 locationName = plan.name,
                 description = plan.description,
                 keywords = plan.keywords,
-                type = plan.type
+                type = plan.type,
+                photoRef = null
             )
         )
     }
