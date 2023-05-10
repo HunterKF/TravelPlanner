@@ -2,16 +2,14 @@ package com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.components
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,7 +18,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -28,6 +25,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
+import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.jaegerapps.travelplanner.R
@@ -38,31 +37,82 @@ import com.jaegerapps.travelplanner.domain.models.Itinerary.SinglePlan
 fun PlanContainer(
     plan: SinglePlan,
     modifier: Modifier = Modifier,
+    onDelete: () -> Unit,
 ) {
     val spacing = LocalSpacing.current
 
     var expandedState by remember {
         mutableStateOf(false)
     }
+    var dropDownState by remember {
+        mutableStateOf(false)
+    }
     val animateRatio by animateFloatAsState(
-        targetValue = if (expandedState) 1f else 1.7f, animationSpec = tween(
-            durationMillis = 200
+        targetValue = if (expandedState) 1.2f else 1.7f, animationSpec = tween(
+            durationMillis = 300
         )
     )
+    val interactionSourcePhoto = remember { MutableInteractionSource() }
+
+    val animateDp by animateDpAsState(
+        targetValue = if (expandedState) 0.dp else (-10).dp,
+        animationSpec = tween(
+            durationMillis = 300,
+            easing = FastOutLinearInEasing
+        )
+    )
+
 
     Box(
         modifier = modifier
             .background(MaterialTheme.colors.surface)
             .clip(RoundedCornerShape(15.dp))
-            .clickable {
-                expandedState = !expandedState
-                println(plan.photoRef)
-            }
-    ) {
 
+    ) {
+        Box(
+            modifier = Modifier
+                .zIndex(2f)
+                .border(4.dp, Color.Red)
+                .align(Alignment.TopEnd),
+        ) {
+            IconButton(
+                onClick = {
+                    if (!dropDownState) {
+                        dropDownState = true
+                    }
+                }
+            ) {
+                Icon(
+                    Icons.Default.MoreVert,
+                    contentDescription = "Plan options open"
+                )
+            }
+            DropdownMenu(
+                expanded = dropDownState,
+                properties = PopupProperties(
+                    focusable = false,
+                    dismissOnBackPress = true,
+                    dismissOnClickOutside = true
+                ),
+                onDismissRequest = { dropDownState = !dropDownState }
+            ) {
+                DropdownMenuItem(onClick = {
+                    onDelete()
+                }) {
+                    Text(text = "Delete")
+                }
+            }
+        }
         Box(
             modifier = modifier
                 .aspectRatio(animateRatio)
+                .clickable(
+                    interactionSourcePhoto,
+                    null,
+                ) {
+                    expandedState = !expandedState
+                    println(plan.photoRef)
+                }
         ) {
             Box(
                 modifier = Modifier
@@ -146,17 +196,22 @@ fun PlanContainer(
                     )
                 }
                 if (expandedState) {
-                    Text(
-                        text = plan.description,
-                        style = MaterialTheme.typography.body1,
-                        color = Color.White
-                    )
-                    Text(
-                        text = plan.address,
-                        style = MaterialTheme.typography.subtitle1,
-                        color = Color.White
+                    Column(
+                        modifier = Modifier.offset(y = animateDp)
+                    ) {
+                        Text(
+                            text = plan.description,
+                            style = MaterialTheme.typography.body1,
+                            color = Color.White
+                        )
+                        Text(
+                            text = plan.address,
+                            style = MaterialTheme.typography.subtitle1,
+                            color = Color.White
 
-                    )
+                        )
+                    }
+
                 }
             }
         }
@@ -178,7 +233,7 @@ fun SinglePlanPreview() {
         type = "chill, beer, hip"
     )
     Row(Modifier.fillMaxWidth()) {
-        PlanContainer(plan = plan)
+        PlanContainer(plan = plan) { plan.photoRef = "123" }
 
     }
 }

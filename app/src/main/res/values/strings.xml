@@ -30,4 +30,7 @@
     <string name="list_of_valid_locations">Here is a Google Places list of valid locations to select from. If something is not on the list, DO NOT create a place that is not on the list. Do not choose or make locations that are not on this list: </string>
     <string name="ending_message">"If you cannot find something that fits the user's interests, requests, or information, that is okay. Do not create anything or use anything that is not on the list. "</string>
     <string name="ending_message_filter">Filter this list based on my interests. Return 5 places in the assigned JSON format.</string>
+    <string name="return_to_my_trip_screen">Return to my trip screen</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc urna nulla, pulvinar vel mauris fringilla, mattis posuere orci. Proin mi metus, elementum non consectetur posuere, viverra quis tellus. Fusce eget tortor mauris. Phasellus cursus, nibh eget dictum facilisis, nulla ante mattis sapien, ac tristique lorem ipsum in arcu. Aenean id porttitor quam. Phasellus egestas scelerisque nunc, dignissim sagittis ipsum sagittis vel. Quisque viverra nisl nulla, auctor lobortis neque varius in.</string>
+    <string name="close_tab">Close tab</string>
 </resources>

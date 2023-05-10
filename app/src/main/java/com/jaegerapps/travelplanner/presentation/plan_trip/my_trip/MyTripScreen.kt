@@ -25,6 +25,7 @@ import com.jaegerapps.travelplanner.presentation.ui_components.ActionButton
 @Composable
 fun MyTripScreen(
     viewModel: SharedViewModel,
+    onNavigate: () -> Unit,
 ) {
     val spacing = LocalSpacing.current
     val state by viewModel.state.collectAsState()
@@ -55,7 +56,10 @@ fun MyTripScreen(
                     true -> {
                         currentDayState.planList.forEach { item ->
                             item {
-                                PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
+                                PlanContainer(
+                                    plan = item,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) { viewModel.onDeleteSinglePlan(item) }
                                 Text("No Hello")
 
                             }
@@ -78,10 +82,33 @@ fun MyTripScreen(
                 }
 
             } else {
-                state.dayPlan.planList.forEach { item ->
+                if (state.dayPlan.planList.isNotEmpty()) {
+                    state.dayPlan.planList.forEach { item ->
+                        item {
+                            PlanContainer(
+                                plan = item,
+                                modifier = Modifier.fillMaxWidth()
+                            ) { viewModel.onDeleteSinglePlan(item) }
+                            Text("Hello")
+                        }
+                    }
+                } else {
                     item {
-                        PlanContainer(plan = item, modifier = Modifier.fillMaxWidth())
-                        Text("Hello")
+                        Column(
+                            modifier = Modifier
+                                .weight(1f),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = "Oh noooo!",
+                                style = MaterialTheme.typography.h4
+                            )
+                            Text(
+                                text = "It seems you have nothing planned. Click the add button to get started on your dream travel plan!",
+                                style = MaterialTheme.typography.body1
+                            )
+                        }
                     }
                 }
             }
@@ -90,6 +117,9 @@ fun MyTripScreen(
                     Log.d("MultiDay", "$state")
                 })
 
+            }
+            item {
+                ActionButton(text = "Add to the plan", onClick = { onNavigate() })
             }
         }
     }
@@ -108,7 +138,7 @@ fun MyTripPreview() {
             keywords = "dank",
             type = "relaxation",
 
-        ),
+            ),
         SinglePlan(
             address = "0987 Peter St.",
             photoRef = null,
@@ -212,5 +242,7 @@ fun MyTripPreview() {
 
 
 
-    MyTripScreen(viewModel = viewModel)
+    MyTripScreen(viewModel = viewModel) {
+        println("Hi")
+    }
 }

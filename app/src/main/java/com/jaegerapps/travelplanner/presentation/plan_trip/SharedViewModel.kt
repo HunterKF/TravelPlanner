@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.core.util.UiEvent
 import com.jaegerapps.travelplanner.domain.models.Itinerary.DayPlan
 import com.jaegerapps.travelplanner.domain.models.Itinerary.PlannedItinerary
+import com.jaegerapps.travelplanner.domain.models.Itinerary.SinglePlan
 import com.jaegerapps.travelplanner.domain.models.Itinerary.SpecialRequest
 import com.jaegerapps.travelplanner.presentation.models.LocalLocation
 import kotlinx.coroutines.channels.Channel
@@ -214,7 +215,10 @@ class SharedViewModel : ViewModel() {
                     loaded = false
                 )
             )
-        Log.d("MultiDay", "Blank days have been added completed. ${_plannedItinerary.value.multiDayPlan}")
+        Log.d(
+            "MultiDay",
+            "Blank days have been added completed. ${_plannedItinerary.value.multiDayPlan}"
+        )
     }
 
     fun onStateRequestUpdate(specialRequests: List<SpecialRequest>) {
@@ -223,6 +227,12 @@ class SharedViewModel : ViewModel() {
                 specialRequests = specialRequests
             )
         )
+    }
+
+    fun onDeleteSinglePlan(plan: SinglePlan) {
+        plannedItinerary.value.dayPlan.planList =
+            plannedItinerary.value.dayPlan.planList.minus(plan)
+        plannedItinerary.value.dayPlan.numberOfEvents = plannedItinerary.value.dayPlan.planList.size
     }
 
 

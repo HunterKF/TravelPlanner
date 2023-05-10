@@ -1,7 +1,6 @@
 package com.jaegerapps.travelplanner
 
 import android.os.Bundle
-import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.*
@@ -17,6 +16,7 @@ import com.jaegerapps.travelplanner.presentation.plan_trip.my_trip.MyTripScreen
 import com.jaegerapps.travelplanner.presentation.plan_trip.about_trip.AboutTripScreen
 import com.jaegerapps.travelplanner.presentation.plan_trip.interests.InterestsScreen
 import com.jaegerapps.travelplanner.presentation.plan_trip.location.LocationScreen
+import com.jaegerapps.travelplanner.presentation.plan_trip.replace.ReplaceScreen
 import com.jaegerapps.travelplanner.ui.theme.TravelPlannerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -59,7 +59,12 @@ class MainActivity : ComponentActivity() {
                                 )
                         }
                         composable(Route.ViewTrip.route) {
-                            MyTripScreen(viewModel = sharedViewModel)
+                            MyTripScreen(viewModel = sharedViewModel) {
+                                navController.navigate(Route.AddToTrip.route)
+                            }
+                        }
+                        composable(Route.AddToTrip.route) {
+                            ReplaceScreen()
                         }
                         composable(Route.Location.route) {
                             LocationScreen(sharedViewModel = sharedViewModel, onDayTripNext = {

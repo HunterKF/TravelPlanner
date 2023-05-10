@@ -3,15 +3,13 @@ package com.jaegerapps.travelplanner.presentation.ui_components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.TextField
-import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,6 +21,8 @@ import com.jaegerapps.travelplanner.core.ui.LocalSpacing
 fun StringTextField(
     modifier: Modifier = Modifier,
     value: String,
+    placeHolderText: String = "",
+    icon: ImageVector? = null,
     onValueChange: (String) -> Unit,
     backgroundColor: Color = Color.White,
     textColor: Color = Color.Black,
@@ -31,6 +31,7 @@ fun StringTextField(
         color = MaterialTheme.colors.primaryVariant,
         fontSize = 20.sp
     ),
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center
 ) {
     val spacing = LocalSpacing.current
     Row(
@@ -38,11 +39,19 @@ fun StringTextField(
             .fillMaxWidth()
             .clip(RoundedCornerShape(100.dp))
             .background(backgroundColor),
-        horizontalArrangement = Arrangement.Center
+        horizontalArrangement = horizontalArrangement
     ) {
         TextField(
             value = value,
             onValueChange = onValueChange,
+            leadingIcon = {
+                if (icon != null) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null
+                    )
+                }
+            },
             textStyle = textStyle,
             keyboardOptions = keyboardOptions,
             singleLine = true,
@@ -55,7 +64,10 @@ fun StringTextField(
                 unfocusedIndicatorColor = Color.Transparent,
                 backgroundColor = Color.Transparent
             ),
-            maxLines = 3
+            maxLines = 3,
+            placeholder = {
+                Text(text = placeHolderText)
+            }
 
         )
         Spacer(modifier = Modifier.width(spacing.spaceSmall))

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -18,7 +17,6 @@ import com.example.core.util.UiEvent
 import com.jaegerapps.travelplanner.R
 import com.jaegerapps.travelplanner.core.ui.LocalSpacing
 import com.jaegerapps.travelplanner.presentation.plan_trip.SharedViewModel
-import com.jaegerapps.travelplanner.presentation.plan_trip.location.LocationViewModel
 import com.jaegerapps.travelplanner.presentation.ui_components.ActionButton
 import com.jaegerapps.travelplanner.presentation.ui_components.StringTextField
 

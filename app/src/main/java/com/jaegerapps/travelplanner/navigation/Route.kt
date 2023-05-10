@@ -13,6 +13,7 @@ sealed class Route(val route: String, val label: String, val vector: ImageVector
     object Location : Route (route = "location", "Location", Icons.Default.AccountCircle)
     object Duration : Route (route = "duration", "Duration", Icons.Default.AccountCircle)
     object AboutTrip : Route (route = "about_trip", "About Trip", Icons.Default.AccountCircle)
+    object AddToTrip : Route (route = "add_to_trip", "Add to Trip", Icons.Default.AccountCircle)
     object Interests : Route (route = "interests", "Interest", Icons.Default.AccountCircle)
     object SpecialRequests : Route (route = "special_requests", "Special Requests", Icons.Default.AccountCircle)
 

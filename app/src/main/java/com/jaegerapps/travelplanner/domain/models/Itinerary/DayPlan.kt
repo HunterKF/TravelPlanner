@@ -2,7 +2,7 @@ package com.jaegerapps.travelplanner.domain.models.Itinerary
 
 data class DayPlan(
     var plannedDay: Int = 0,
-    val numberOfEvents: Int,
+    var numberOfEvents: Int,
     var planList: List<SinglePlan>,
     var loaded: Boolean
     ) {
