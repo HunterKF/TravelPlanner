@@ -64,7 +64,11 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         composable(Route.AddToTrip.route) {
-                            ReplaceScreen()
+                            ReplaceScreen(
+                                sharedViewModel = sharedViewModel
+                            ) {
+                                navController.popBackStack()
+                            }
                         }
                         composable(Route.Location.route) {
                             LocationScreen(sharedViewModel = sharedViewModel, onDayTripNext = {

@@ -15,6 +15,7 @@ import com.jaegerapps.travelplanner.domain.models.Itinerary.PlannedItinerary
 import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary.Companion.toFilterString
 import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary.Companion.toMultiDayStringRequest
 import com.jaegerapps.travelplanner.domain.models.Itinerary.RequestItinerary.Companion.toRequestString
+import com.jaegerapps.travelplanner.domain.models.Itinerary.SinglePlan
 import com.jaegerapps.travelplanner.domain.models.google.PlaceInfo
 import com.jaegerapps.travelplanner.domain.models.google.PlaceWrapper
 import com.jaegerapps.travelplanner.domain.repositories.GooglePlaceRepository
@@ -223,6 +224,16 @@ class PlanTripViewModel @Inject constructor(
                             PlaceInfo(
                                 name = place,
                                 photoReference = allSearchedPlaces.firstOrNull() { it.name == place }?.photoReference
+                            )
+                        )
+                        sharedViewModel.addToRecommendList(
+                            SinglePlan(
+                                address = "",
+                                photoRef = allSearchedPlaces.firstOrNull() { it.name == place }?.photoReference,
+                                locationName = place,
+                                description = "",
+                                keywords = "",
+                                type = ""
                             )
                         )
                     }

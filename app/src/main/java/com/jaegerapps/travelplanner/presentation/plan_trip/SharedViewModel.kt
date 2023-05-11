@@ -33,6 +33,7 @@ class SharedViewModel : ViewModel() {
 
         )
     )
+
     var _plannedItinerary = plannedItinerary
 
     val state = plannedItinerary.asStateFlow()
@@ -77,6 +78,9 @@ class SharedViewModel : ViewModel() {
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
+    //This is used in the add screen, it is a list of places for the user to select from.
+    var recommendPlaceList = listOf<SinglePlan>()
+
 
     fun onMultiDayClick() {
         requestState = requestState.copy(
@@ -106,6 +110,11 @@ class SharedViewModel : ViewModel() {
         )
     }
 
+    fun addToRecommendList(
+        singlePlan: SinglePlan,
+    ) {
+        recommendPlaceList = recommendPlaceList.plus(singlePlan)
+    }
 
     fun onDurationChange(value: String) {
         requestState = requestState.copy(
@@ -232,6 +241,12 @@ class SharedViewModel : ViewModel() {
     fun onDeleteSinglePlan(plan: SinglePlan) {
         plannedItinerary.value.dayPlan.planList =
             plannedItinerary.value.dayPlan.planList.minus(plan)
+        plannedItinerary.value.dayPlan.numberOfEvents = plannedItinerary.value.dayPlan.planList.size
+    }
+
+    fun onAddSinglePlan(plan: SinglePlan) {
+        plannedItinerary.value.dayPlan.planList =
+            plannedItinerary.value.dayPlan.planList.plus(plan)
         plannedItinerary.value.dayPlan.numberOfEvents = plannedItinerary.value.dayPlan.planList.size
     }
 

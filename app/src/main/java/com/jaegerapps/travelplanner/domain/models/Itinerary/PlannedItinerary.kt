@@ -6,5 +6,5 @@ data class PlannedItinerary(
     val interests: String,
     var multiTrip: Boolean = false,
     var dayPlan: DayPlan,
-    var multiDayPlan: List<DayPlan> = listOf<DayPlan>(),
+    var multiDayPlan: List<DayPlan> = listOf<DayPlan>()
 )

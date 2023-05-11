@@ -31,7 +31,8 @@ fun StringTextField(
         color = MaterialTheme.colors.primaryVariant,
         fontSize = 20.sp
     ),
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center
+    horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
+    trailingIcon: (@Composable () -> Unit)? = null
 ) {
     val spacing = LocalSpacing.current
     Row(
@@ -52,6 +53,7 @@ fun StringTextField(
                     )
                 }
             },
+            trailingIcon = trailingIcon,
             textStyle = textStyle,
             keyboardOptions = keyboardOptions,
             singleLine = true,
