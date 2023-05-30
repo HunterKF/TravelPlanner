@@ -90,6 +90,10 @@ class PlanTripViewModel @Inject constructor(
         getPredictions(address)
     }
 
+    fun onManualSearch(query: String) {
+
+    }
+
 
     //this encodes the lat lng to a URL string
     private fun getLocationString(): String {
@@ -226,10 +230,11 @@ class PlanTripViewModel @Inject constructor(
                                 photoReference = allSearchedPlaces.firstOrNull() { it.name == place }?.photoReference
                             )
                         )
+                        val uri =
                         sharedViewModel.addToRecommendList(
                             SinglePlan(
                                 address = "",
-                                photoRef = allSearchedPlaces.firstOrNull() { it.name == place }?.photoReference,
+                                photoRef = addUriToIndividualPlan(place),
                                 locationName = place,
                                 description = "",
                                 keywords = "",
@@ -292,11 +297,11 @@ class PlanTripViewModel @Inject constructor(
             plan.photoRef =
                 allSearchedPlaces.firstOrNull() { it.name == plan.locationName }?.photoReference
         }
-        return addUriToPhotoRef(plannedItinerary)
+        return addUriToPlanPhotos(plannedItinerary)
 
     }
 
-    private fun addUriToPhotoRef(plannedItinerary: PlannedItinerary): PlannedItinerary {
+    private fun addUriToPlanPhotos(plannedItinerary: PlannedItinerary): PlannedItinerary {
         plannedItinerary.dayPlan.planList.forEach { plan ->
             if (!plan.photoRef.isNullOrBlank()) {
                 val uri = "https://maps.googleapis.com/maps/api/place/photo?key=${BuildConfig.PLACES_API_KEY}&maxwidth=300&photoreference=${plan.photoRef}"
@@ -306,6 +311,18 @@ class PlanTripViewModel @Inject constructor(
         }
         return plannedItinerary
     }
+
+    private fun addUriToIndividualPlan(place: String): String? {
+        var photo = allSearchedPlaces.firstOrNull() { it.name == place }?.photoReference
+        if (photo != null) {
+            val uri = "https://maps.googleapis.com/maps/api/place/photo?key=${BuildConfig.PLACES_API_KEY}&maxwidth=300&photoreference=${photo}"
+
+            photo = uri
+        }
+        return photo
+    }
+
+
 
 
     private fun getPredictions(address: String) {
